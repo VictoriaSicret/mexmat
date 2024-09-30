@@ -159,7 +159,8 @@ namespace cint {
 		}
 
 		if (num1.getN() == 3) {
-			delete[] str1; delete[] str2;
+			delete[] str1;
+                        delete[] str2;
 			return (sgn1 == sgn2) ? s : -s;
 		}
 		char* str = new char[num1.getN()-1];
@@ -402,6 +403,7 @@ namespace cint {
 //copy-constructor
 	
 	CintN& CintN::operator= (const CintN& num) {
+            if (this == &num) {return *this;}
 		N = num.getN();
 		delete[] val;
 		val = num.getVal();
