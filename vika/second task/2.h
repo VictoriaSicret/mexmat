@@ -39,21 +39,26 @@ namespace cint {
 		CintN(int);
 		CintN(int, bool);
 		CintN(const CintN&);
-        CIntN(CintN &&);
+	        CintN(CintN&&);
 
 		char* getVal(void) const;
 		int getN(void) const;
 
 		~CintN(void);
 		
+
 		CintN& operator= (const CintN&);	
+		CintN& operator= (CintN&&);
+
 		CintN& operator+= (const CintN&);
 		CintN& operator-= (const CintN&);	
 		CintN& operator*= (const CintN&);
+		
 		CintN& operator++ (void);
 		CintN operator++ (int);
+		
 		CintN& operator-- (void);
-        CintN operator-- (int);
+        	CintN operator-- (int);
 
 		friend std::istream& operator>> (std::istream&, CintN&);
 	};

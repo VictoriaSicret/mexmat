@@ -394,6 +394,12 @@ namespace cint {
 		val = num.getVal();
 	}
 
+	CintN::CintN(CintN&& moved) noexcept {
+		N = moved.N;
+		val = moved.val;
+		moved.val = nullptr;
+	}
+
 //destuctor
 
 	CintN::~CintN(void) {
@@ -401,7 +407,7 @@ namespace cint {
 	}
 
 //copy-constructor
-	
+		
 	CintN& CintN::operator= (const CintN& num) {
             if (this == &num) {return *this;}
 		N = num.getN();
@@ -410,6 +416,18 @@ namespace cint {
 		return *this;
 	}
 	
+	CintN& CintN::operator= (CintN&& moved) noexcept {
+		if (this != &moved) {
+			delete[] val;
+			val = moved.val;
+			moved.val = nullptr;
+			N = moved.N;
+			moved.N = 0;
+		}
+
+		return *this;
+	}
+
 	CintN& CintN::operator+= (const CintN& num) {
 		*this = *this + num;
 		return *this;
