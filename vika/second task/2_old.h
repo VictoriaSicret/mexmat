@@ -11,6 +11,7 @@ namespace cint {
 	class CintN;
 
 	char* print (const CintN&);
+	CintN operator+ (const CintN&, const CintN&);
 	CintN operator- (const CintN&, const CintN&);
 	CintN operator* (const CintN&, const CintN&);
 
@@ -38,17 +39,16 @@ namespace cint {
 		CintN(int);
 		CintN(int, bool);
 		CintN(const CintN&);
-	        CintN(CintN&&) noexcept;
+	        CintN(CintN&&);
 
 		char* getVal(void) const;
 		int getN(void) const;
 
 		~CintN(void);
 		
-		CintN operator+ (const CintN&) const;
 
 		CintN& operator= (const CintN&);	
-		CintN& operator= (CintN&&) noexcept;
+		CintN& operator= (CintN&&);
 
 		CintN& operator+= (const CintN&);
 		CintN& operator-= (const CintN&);	

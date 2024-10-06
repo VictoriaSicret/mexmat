@@ -14,25 +14,25 @@ namespace cint {
                 return res;
 	}
 
-	 CintN CintN::operator+ (const CintN& n) const {
-		bool sgn1 = sgn(*this), sgn2 = sgn(n);
+	CintN operator+ (const CintN& n1, const CintN& n2) {
+		bool sgn1 = sgn(n1), sgn2 = sgn(n2);
 		if (!(sgn1 && sgn2)) {
 			if (sgn1 == sgn2) {
-				return -((-(*this)) + (-n));
+				return -((-n1) + (-n2));
 			} 
 			if (sgn2) {
-				return n-(-(*this));
+				return n2-(-n1);
 			} else {
-				return (*this)-(-n);
+				return n1-(-n2);
 			}
 		}
 
-		int num = ((this->getN() > n.getN()) ? this->getN() : n.getN()) + 1;
+		int n = ((n1.getN() > n2.getN()) ? n1.getN() : n2.getN()) + 1;
 	       	
-		char* tmp = new char[num];
-		char* num1 = print(*this), *num2 = print(n);
-		tmp[0] = 43; tmp[1] = 0; tmp[num-1] = 0; int t = num-2, buff = 0;
-		int i = this->getN()-2, k = n.getN()-2;
+		char* tmp = new char[n];
+		char* num1 = print(n1), *num2 = print(n2);
+		tmp[0] = 43; tmp[1] = 0; tmp[n-1] = 0; int t = n-2, buff = 0;
+		int i = n1.getN()-2, k = n2.getN()-2;
 		while (i >= 1 && k >= 1) {
 			tmp[t] = num1[i] - 48 + num2[k] - 48 + buff;
 			buff  = tmp[t]/10;
@@ -40,7 +40,7 @@ namespace cint {
 			tmp[t] += 48;
 			--t; --i; --k;
 		}
-		if (this->getN() == n.getN()) {
+		if (n1.getN() == n2.getN()) {
 			if (buff) {
 				tmp[1] = 49;
 			}
@@ -64,9 +64,9 @@ namespace cint {
 
 		delete[] num1; delete[] num2;
 		if (tmp[1] == 0) {
-			char* buff = new char[num-1];
+			char* buff = new char[n-1];
 			buff[0] = 43;
-			for (int i = 1; i < num-1; ++i) {
+			for (int i = 1; i < n-1; ++i) {
 				buff[i] = tmp[i+1];
 			}
 
@@ -86,7 +86,7 @@ namespace cint {
 				return -((-num1) + (-num2));
 			}
 			if (sgn1) {
-				return num1 + (-num2);
+				return num1+(-num2);
 			} else {
 				return -((-num1)+num2);
 			}
