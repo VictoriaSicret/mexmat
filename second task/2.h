@@ -28,7 +28,7 @@ namespace cint {
 	std::ostream& operator<< (std::ostream&, const CintN&);
 
 	class CintN {
-		char* val;
+		std::unique_ptr<char []> val;
 		int N;
 	
 		public:
