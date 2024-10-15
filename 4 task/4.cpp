@@ -1,4 +1,4 @@
-#include "2.h"
+#include "4.h"
 
 namespace cint {
 	 char* print (const CintN& num) {
@@ -297,7 +297,7 @@ namespace cint {
 
 	CintN::CintN(void) {
 		N = 3;
-		val = new char[N];
+		val = std::make_shared<char []>(N);
 		val[0] = 48;
 		val[1] = 43;
 		val[2] = 0;	
@@ -317,18 +317,17 @@ namespace cint {
 		}
 		
 		if (flag) {
-			val = new char[N];
+			val = std::make_shared<char []> (N);
 			val[N-2] = value[0];
 		} else {
 			N++;
-			val = new char[N];
+			val = std::make_shared<char []> (N);
 			val[N-2] = 43;
 		}
 		int i = N-3;
 		for (size_t k = (flag) ? 1 : 0; k < strlen(value); ++k) {
 			if (i < 0) break;
 			if(!isdigit(value[k])) {
-				delete[] val;
 				std::cout << "C";
 				exit(-1);
 			} 
@@ -342,14 +341,14 @@ namespace cint {
 	CintN::CintN(int n) {
 		if (n == 0) {
 			N = 3;
-			val = new char[3];
+			val = std::make_shared<char []> (N);
 			val[0] = 48;
 			val[1] = 43;
 			val[2] = 0;
 			return;
 		}
 		N = 3;
-		val = new char[N];
+		val = std::make_shared<char []> (N);
 		val[N-1] = 0;
 		val[N-2] = (n > 0) ? 43 : 45;
 		int num = n;
@@ -360,14 +359,13 @@ namespace cint {
 			num /= 10;
 			if (num > 0) {
 				++N;
-				char *tmp = new char[N];
+				auto tmp = new char[N];
 				tmp[N-1] = 0;
 				tmp[N-2] = val[N-3];
 				for (int i = 0; i < t; ++i) {
 					tmp[i] = val[i];
 				}
-				delete[] val;
-				val = tmp;
+				val.reset(tmp);
 			}
 		}
 
@@ -380,7 +378,7 @@ namespace cint {
 		}
 
 		N = n+2;
-		val = new char[N];
+		val = std::make_shared<char []> (N);
 		val[N-2] = sign ? 43 : 45;
 		val[N-1] = 0;
 		val[N-3] = rand()%9 +1 + 48;
@@ -391,7 +389,7 @@ namespace cint {
 
 	CintN::CintN(const CintN& num) {
 		N = num.getN();
-		val = num.getVal();
+		val.reset(num.getVal());
 	}
 
 	CintN::CintN(CintN&& moved) noexcept {
@@ -402,23 +400,19 @@ namespace cint {
 
 //destuctor
 
-	CintN::~CintN(void) {
-		delete[] val;
-	}
+	CintN::~CintN(void) { }
 
 //copy-constructor
 		
 	CintN& CintN::operator= (const CintN& num) {
             if (this == &num) {return *this;}
 		N = num.getN();
-		delete[] val;
-		val = num.getVal();
+		val.reset(num.getVal());
 		return *this;
 	}
 	
 	CintN& CintN::operator= (CintN&& moved) noexcept {
 		if (this != &moved) {
-			delete[] val;
 			val = moved.val;
 			moved.val = nullptr;
 			N = moved.N;

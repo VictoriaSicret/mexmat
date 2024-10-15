@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <memory>
 
 namespace cint {
 	class CintN;
@@ -28,7 +29,7 @@ namespace cint {
 	std::ostream& operator<< (std::ostream&, const CintN&);
 
 	class CintN {
-		std::unique_ptr<char []> val;
+		std::shared_ptr<char []> val;
 		int N;
 	
 		public:
