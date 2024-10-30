@@ -12,13 +12,10 @@ namespace LIST {
 		~ListExcept();
 		const char* what() const noexcept override;
 	};
-	
+
 	class List {
-        class Node;
-        class iterator;
 
 		class Node {
-			friend class iterator;
             public:
             
             char* mes;
@@ -27,20 +24,19 @@ namespace LIST {
             Node* last;
             Node* next;
 
-            Node(const char*, const Node*, const Node*);
+            Node(const char*);
             ~Node();
                     
             char* val(void) const;
-
-        	friend int cmp(const Node&, const Node&, int(*) (const char*, const char*));
-	    };
-	    
+        };
+        
         class iterator {
-            List *lst;
-            Node* pos;
-
             public:
-            iterator(List*, Node*);
+            const List *lst;
+            Node* pos;
+            size_t index;
+
+            iterator(const List*, Node*, const size_t);
             ~iterator(void);
 
             iterator& operator++(void);
@@ -52,6 +48,7 @@ namespace LIST {
             bool operator!= (const iterator&) const;
 
             char* operator* (void) const;
+            size_t Index (void);
         };
         
 		Node* head;
@@ -69,10 +66,21 @@ namespace LIST {
         void pushHead(const char *);
         void popHead(void);
 
+        void pushIn(const size_t, const char*);
+        void popIn(const size_t);        
+
         bool empty(void);
         size_t length(void);
         
-        List& add(const List&);
+        List& add(const List*);
+        void clear(void); 
+	    
+        void sort(int(*)(const char*, const char*));
+
+        iterator begin(void) const;
+        iterator end(void) const;
+
+        friend int cmp(const Node&, const Node&, int(*) (const char*, const char*));
 	};
 }
 
