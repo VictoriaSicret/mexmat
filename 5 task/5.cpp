@@ -1,51 +1,57 @@
 #include "5.h"
 
 namespace LIST {
+    //ListExcept BEGIN
+
 	const char* ListExcept::what() const noexcept {
 		return message;
 	}
 
 	ListExcept::ListExcept(const char* text) {
 		message = new char[strlen(text)+1];
-		strcmp(message, text);
+		strcpy(message, text);
 	}
 
 	ListExcept::~ListExcept() {
 		delete[] message;
 	}
 
-	List::Node::Node(char* text = nullptr, Node* last = nullptr, Node *next = nullptr): last(last), next(next) {
-                if (text != nullptr) {
-                        size = strlen(text)+1;
-                        mes = new char[size];
-                        for (size_t i = 0; i < size; ++i) {
-                                mes[i] = text[i];
-                        }
-                } else {
-                        mes = nullptr;
-                        size = 0;
-                }
-        }
+    //ListExcept END
 
-	List::Node::Node(Node&& node) {
-                size = node.size;
-                node.size = 0;
-                mes = (node.mes == nullptr) ? nullptr : new char[size];
-                memcpy(mes, node.mes, size);
-                if (node.mes != nullptr) {
-                        delete[] node.mes;
-                }
-                last = node.last;
-                node.last = nullptr;
-                next = node.next;
-                node.next = nullptr;
-        }
+    //List::Node BEGIN
 
-	List::Node::~Node() {
-                size = 0;
-                delete[] mes;
+	List::Node::Node(const char* text = nullptr, const Node* l = nullptr, const Node *n = nullptr){
+        last = l; next = n;
+        if (text != nullptr) {
+            size = strlen(text)+1;
+            mes = new char[size];
+            for (size_t i = 0; i < size; ++i) {
+                mes[i] = text[i];
+            }
+        } else {
+            mes = nullptr;
+            size = 0;
         }
+    }
+    
+	List::Node::~Node() 
+        size = 0;
+        delete[] mes;
+    }
 
+    char* List::Node::val(void) const {
+        char* res = new char[size];
+        strcpy(res, mes);
+        return res;
+    }
+    
+    int List::cmp(const Node& n1, const Node& n2, int (*op)(const char*, const char*)) {
+        return op(n1.mes, n2.mes);
+    }
+    
+    //List::Node END
+
+    //List BEGIN
 
 	List::List(Node* front = nullptr, Node* end = nullptr): head(front), back(end), pos(front) {
 		if ((front == nullptr && end != nullptr) || (front != nullptr && end == nullptr)) {
@@ -90,5 +96,69 @@ namespace LIST {
         head = head->last;
     }
 
-    set softtabstop=4
+    bool List::empty(void) {
+        return (head == nullptr) ? true : false;
+    }
+
+    size_t List::length(void) {
+        if (head == nullptr) return 0;
+        auto tmp = head; size_t count = 1;
+        while (tmp != back) {
+            tmp = tmp->next;
+            count++;
+        }
+        return count;
+    }
+
+    List List::add(const List& curr) {
+        end->next = curr->head;
+        end = curr->end;
+    }
+
+    //List END
+
+    //List::iterator BEGIN
+
+    List::iterator::iterator(List* lst = nullptr, Node* node = nullptr): lst(lst), pos(node) {}
+
+    List::iterator::~iterator(void) {
+        lst = nullptr;
+        pos = nullptr;
+    }
+
+    iterator& List::iterator::operator++(void) {
+        pos = pos->next;
+        return *this;
+    }
+
+    iterator List::iterator::operator++(int k) {
+        iterator old = *this;
+        ++(*this);
+        return old;
+    }
+
+    iterator& List::iterator::operator--(void) {
+        pos = pos->last;
+        return *this;
+    }
+
+    iterator List::iterator::operator--(int k) {
+        iterator old = *this;
+        --(*this);
+        return old;
+    }
+
+    bool List::iterator::operator== (const iterator& i) const {
+        return (lst == i.lst && pos == i.pos) ? true : false;
+    st}
+
+    bool List::iterator::operator!= (const iterator& i) const {
+        return !(*this == i);
+    }
+    
+    char* List::iterator::operator* (void) const {
+        return pos->val();
+    }
+    //List::iterator END
 }
+
