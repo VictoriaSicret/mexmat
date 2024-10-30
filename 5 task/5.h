@@ -34,7 +34,26 @@ namespace LIST {
 
         	friend int cmp(const Node&, const Node&, int(*) (const char*, const char*));
 	    };
+	    
+        class iterator {
+            List *lst;
+            Node* pos;
 
+            public:
+            iterator(List*, Node*);
+            ~iterator(void);
+
+            iterator& operator++(void);
+            iterator operator++(int);
+            iterator& operator--(void);
+            iterator operator--(int);
+
+            bool operator== (const iterator&) const;
+            bool operator!= (const iterator&) const;
+
+            char* operator* (void) const;
+        };
+        
 		Node* head;
 		Node* back;
         size_t size;
@@ -54,25 +73,6 @@ namespace LIST {
         size_t length(void);
         
         List& add(const List&);
-
-        class iterator {
-            List *lst;
-            Node* pos;
-
-            public:
-            iterator(List*, Node*);
-            ~iterator(void);
-
-            iterator& operator++(void);
-            iterator operator++(int);
-            iterator& operator--(void);
-            iterator operator--(int);
-
-            bool operator== (const iterator&) const;
-            bool operator!= (const iterator&) const;
-
-            char* operator* (void) const;
-        };
 	};
 }
 
