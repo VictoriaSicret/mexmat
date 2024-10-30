@@ -72,4 +72,23 @@ namespace LIST {
 		back->next->last = back;
 		back = back->next;
 	}
+
+    void List::popBack(void) {
+        if (back == head) {
+            delete[] back;
+            back = head = nullptr;
+        } else {
+            back = back->last;
+            delete[] back->next;
+            back->next = nullptr;
+        }
+    }
+    
+    void List::pushHead(const char* text) {
+        head->last = new Node(text);
+        head->last->next = head;
+        head = head->last;
+    }
+
+    set softtabstop=4
 }

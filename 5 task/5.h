@@ -42,6 +42,10 @@ namespace LIST {
 		~List();
 
 		void pushBack(const char*);
+        void popBack(void);
+
+        void pushHead(const char *);
+        void popHead(void);
 	};
 }
 
