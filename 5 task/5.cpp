@@ -76,6 +76,46 @@ namespace LIST {
 		}
 	}
 
+    List::List(const List& ls) {
+        for (auto iter = ls.begin(); iter != ls.end(); ++iter) {
+            this->pushBack(*iter);
+        }
+    }
+    
+    List::List(List&& move) {
+        size = move.size;
+        move.size = 0;
+        head = move.head;
+        move.head = nullptr;
+        back = move.back;
+        move.back = nullptr;
+    }
+
+    List& List::operator= (const List& ls) {
+        this->clear();
+
+        for (auto iter = ls.begin(); iter != ls.end(); ++iter) {
+            auto tmp = *iter;
+            this->pushBack(tmp);
+            delete[] tmp;
+        }
+
+        return *this;
+    }
+    
+    List& List::operator= (List&& move) {
+        this->clear();
+
+        size = move.size;
+        move.size = 0;
+        head = move.head;
+        move.head = nullptr;
+        back = move.back;
+        move.back = nullptr;
+
+        return *this;
+    }
+
 	void List::pushBack(const char* text) {
         if (size == 0) {
             back = new Node(text);
@@ -170,25 +210,26 @@ namespace LIST {
         size--;
     }
 
-    bool List::empty(void) {
+    bool List::empty(void) const {
         return size == 0;
     }
 
-    size_t List::length(void) {
+    size_t List::length(void) const {
         return size;
     }
 
-    List& List::add(const List* curr) {
+    List List::add(const List* curr) {
+        List res = *this;
         for (auto iter = curr->begin(); iter != curr->end(); ++iter) {
             auto tmp = *iter;
-            back->next = new Node(tmp);
+            res.back->next = new Node(tmp);
             delete[] tmp;
 
-            back->next->last = back;
-            back = back->next;
-            size++;
+            res.back->next->last = res.back;
+            res.back = res.back->next;
+            res.size++;
         }
-        return *this;
+        return res;
     }
 
     void List::clear (void) {
@@ -197,10 +238,91 @@ namespace LIST {
         }
     }
     
-/*    void sort(int(*op) (const char*, const char*)) {
-        return;
+    List List::sort(int(*op) (const char*, const char*)) {
+/*        List ls;
+        for (auto iter = this->begin(); iter != this->end(); ++iter) {
+            if (ls.empty()) {
+                ls.pushBack(*iter);
+                continue;
+            }
+
+            auto iter1 = ls.begin();
+            while (iter1+1 != ls.end()) {
+                if (op(*iter, *iter1) == 1) {
+                    ls.pushIn(Index(iter1), *iter);
+                    break;
+                }
+            }
+
+
+        }
+*/      List tmp = *this;
+        double factor = 1.25;
+        size_t step = tmp.size-1;
+        while (step >= 1) {
+            for (size_t i = 0; i +step < size; ++i) {
+                auto iter = tmp.begin() + i;
+                auto tmp1 = *iter; auto tmp2 = *(iter+step);
+                if (op(tmp1, tmp2) == 1) {
+                    swap(iter, iter+step);
+                }
+                delete[] tmp1; delete[] tmp2;
+            }
+
+            step /= factor;
+        }
+
+        return tmp;
     }
+
+    void List::swap (List::iterator i1, List::iterator i2) {
+        List ls;
+
+        for (auto iter = this->begin(); iter != this->end(); ++iter) {
+            if (iter == i1) {
+                auto tmp = *i2;
+                ls.pushBack(tmp);
+                delete[] tmp;
+            }
+            else if (iter == i2) {
+                auto tmp = *i1;
+                ls.pushBack(tmp);
+                delete[] tmp;
+            }
+            else {
+                auto tmp = *iter;
+                ls.pushBack(tmp);
+                delete[] tmp;
+            }
+        }
+
+        *this = ls;
+/*
+        int f1 = 0;
+        if (i1.Index() == 0) f1 = 1;
+        else if (i1.Index() == size-1) f1 = 2;
+        
+        int f2 = 0;
+        if (i2.Index() == 0) f2 = 1;
+        else if (i2.Index() == size-1) f2 = 2;
+
+        
+
+        auto tmp_l = i1.pos->last;
+        auto tmp_n = i1.pos->next;
+        i1.pos->last = i2.pos->last;
+        i1.pos->next = i2.pos->next;
+        i2.pos->last = tmp_l;
+        i2.pos->next = tmp_n;
+
+        if (f1) {
+            (f1 == 1) ? head : back = i2.pos;
+        }
+        if (f2) {
+            (f2 == 1) ? head : back = i1.pos;
+        }
 */
+    }
     //List END
 
     //List::iterator BEGIN
@@ -239,6 +361,18 @@ namespace LIST {
         return old;
     }
 
+    List::iterator List::iterator::operator+(size_t k) {
+        auto tmp = pos;
+        for (size_t i = 0; i < k; ++i) {
+            if (tmp != nullptr) {
+                tmp = tmp->next;
+            } else {
+                return lst->end();
+            }
+        }
+        return iterator(lst, tmp, index+k);
+    }
+
     bool List::iterator::operator== (const List::iterator& i) const {
         return (lst == i.lst && index == i.index) ? true : false;
     }
@@ -248,7 +382,7 @@ namespace LIST {
     }
     
     char* List::iterator::operator* (void) const {
-        return pos->val();
+        return std::move(pos->val());
     }
 
     size_t List::iterator::Index (void) {
@@ -263,5 +397,66 @@ namespace LIST {
     List::iterator List::end(void) const {
         return iterator(this, back->next, size);
     }
+
+    std::ostream& operator<< (std::ostream& os, const List& list) {
+        for (auto iter = list.begin(); iter != list.end(); ++iter) {
+            auto tmp = *iter;
+            os << tmp << "\n";
+            delete[] tmp;
+        }
+
+        return os;
+    }
+
+    std::istream& operator>> (std::istream& is, List& list) {
+        list.clear();
+        size_t num = 0;
+        is >> num;
+        
+        for (size_t i = 0; i < num; ++i) {
+            char* tmp = nullptr;
+            is >> tmp;
+            list.pushBack(tmp);
+            delete[] tmp;
+        }
+
+        return is;
+    }
+
+    bool stop(char c) {
+        return (c == '\n' || c == ' ' || c == '\t' || c == 0);
+    }
+
+    std::istream& operator>> (std::istream& is, char*& word) {
+        if (word != nullptr) delete[] word;
+
+        char c; size_t count = 0; bool flag = false;
+        is >> c;
+        if (!stop(c)) {
+            word = new char[2];
+            count++;
+            word[0] = c;
+            word[1] = 0;
+            flag = true;
+        }
+        
+        while(!flag || !stop(c)) {
+            is.get(c);
+            if (!flag && stop(c)) continue;
+            if (flag && stop(c)) break;
+            char* tmp = new char[count+2];
+            for (size_t i = 0; i < count; ++i) {
+                tmp[i] = word[i];
+            }
+            tmp[count] = c;
+            tmp[count+1] = 0;
+            count++;
+            delete[] word;
+            word = tmp;
+            flag = true;
+        }
+        return is;
+    }
+
 }
 

@@ -3,6 +3,7 @@
 
 #include <exception>
 #include <cstring>
+#include <iostream>
 
 namespace LIST {
 	class ListExcept: public std::exception {
@@ -41,6 +42,7 @@ namespace LIST {
 
             iterator& operator++(void);
             iterator operator++(int);
+            iterator operator+ (size_t);
             iterator& operator--(void);
             iterator operator--(int);
 
@@ -60,6 +62,11 @@ namespace LIST {
 		List(void);
 		~List(void);
 
+        List(const List&);
+        List(List&&);
+        List& operator= (const List&);
+        List& operator= (List&&);
+
 		void pushBack(const char*);
         void popBack(void);
 
@@ -69,19 +76,28 @@ namespace LIST {
         void pushIn(const size_t, const char*);
         void popIn(const size_t);        
 
-        bool empty(void);
-        size_t length(void);
+        bool empty(void) const;
+        size_t length(void) const;
         
-        List& add(const List*);
+        List add(const List*);
         void clear(void); 
 	    
-        void sort(int(*)(const char*, const char*));
+        List sort(int(*)(const char*, const char*));
+        
+        void swap (iterator, iterator);
 
         iterator begin(void) const;
         iterator end(void) const;
 
         friend int cmp(const Node&, const Node&, int(*) (const char*, const char*));
-	};
+    
+    };
+    std::istream& operator>> (std::istream&, List&);
+    
+    bool stop(char);
+
+    std::ostream& operator<< (std::ostream&, const List&);
+    std::istream& operator>> (std::istream&, char*&);
 }
 
 #endif
