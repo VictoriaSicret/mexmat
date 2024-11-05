@@ -7,9 +7,9 @@
 
 namespace LIST {
 	class ListExcept: public std::exception {
-		char* message;
+		std::string message;
 		public:
-		ListExcept(const char*);
+		ListExcept(const std::string);
 		~ListExcept();
 		const char* what() const noexcept override;
 	};
@@ -19,16 +19,14 @@ namespace LIST {
 		class Node {
             public:
             
-            char* mes;
-            size_t size;
-
+            std::string mes;
             Node* last;
             Node* next;
 
-            Node(const char*);
+            Node(const std::string);
             ~Node();
             
-            char* val(void) const;
+            std::string val(void) const;
         };
 
         class iterator {
@@ -49,7 +47,7 @@ namespace LIST {
             bool operator== (const iterator&) const;
             bool operator!= (const iterator&) const;
 
-            char* operator* (void) const;
+            std::string operator* (void) const;
             size_t Index (void);
         };
         
@@ -67,13 +65,13 @@ namespace LIST {
         List& operator= (const List&);
         List& operator= (List&&);
 
-		void pushBack(const char*);
+		void pushBack(const std::string);
         void popBack(void);
 
-        void pushHead(const char*);
+        void pushHead(const std::string);
         void popHead(void);
 
-        void pushIn(const size_t, const char*);
+        void pushIn(const size_t, const std::string);
         void popIn(const size_t);        
 
         bool empty(void) const;
@@ -82,7 +80,7 @@ namespace LIST {
         List add(const List*);
         void clear(void); 
 	    
-        List sort(int (*)(const char*, const char*));
+        List sort(int (*)(const std::string, const std::string));
         
         void swap (iterator, iterator);
 
@@ -91,15 +89,11 @@ namespace LIST {
     
     };
     
-    int cmp (const char*, const char*);
-    int cmplen (const char*, const char*); 
+    int cmp (const std::string, const std::string);
+    int cmplen (const std::string, const std::string); 
     
     std::istream& operator>> (std::istream&, List&);
-    
-    bool stop(char);
-
     std::ostream& operator<< (std::ostream&, const List&);
-    std::istream& operator>> (std::istream&, char*&);
 }
 
 #endif

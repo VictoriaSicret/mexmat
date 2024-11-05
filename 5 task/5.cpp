@@ -4,61 +4,42 @@ namespace LIST {
     //ListExcept BEGIN
 
 	const char* ListExcept::what() const noexcept {
-		return message;
+		return message.c_str();
 	}
 
-	ListExcept::ListExcept(const char* text) {
-		message = new char[strlen(text)+1];
-		strcpy(message, text);
-	}
+	ListExcept::ListExcept(const std::string text): message(text) { }
 
-	ListExcept::~ListExcept() {
-		delete[] message;
-	}
+	ListExcept::~ListExcept() {	}
 
     //ListExcept END
 
 
-	List::Node::Node(const char* text){
-        size = strlen(text)+1;
-        mes = new char[size];
-        for (size_t i = 0; i < size; ++i) {
-            mes[i] = text[i];
-        }
-        next = last = nullptr;
+	List::Node::Node(const std::string text): mes(text) {
+        next = nullptr;
+        last = nullptr; 
     }
 
 	List::Node::~Node() {
-        size = 0;
         last = nullptr;
         next = nullptr;
-        delete[] mes;
     }
 
-    int cmp (const char* str1, const char* str2) {
-        size_t l1 = strlen(str1), l2 = strlen(str2);
-        if (l1 > l2) return 1;
-        else if (l1 < l2) return -1;
-        size_t i = 0;
-        while (i < l1) {
-            if (str1[i] < str2[i]) return -1;
-            else if (str1[i] > str2[i]) return 1;
-            ++i;
-        }
+    int cmp (const std::string str1, const std::string str2) {
+        if (cmplen(str1, str2) != 0) return cmplen(str1, str2);
+        if (str1 > str2) return 1;
+        if (str1 < str2) return -1;
 
         return 0;
     }
     
-    int cmplen (const char* str1, const char* str2) {
-        if (strlen(str1) < strlen(str2)) return -1;
-        if (strlen(str1) > strlen(str2)) return 1;
+    int cmplen (const std::string str1, const std::string str2) {
+        if (str1.length() < str2.length()) return -1;
+        if (str1.length() > str2.length()) return 1;
         return 0;
     }
 
-    char* List::Node::val(void) const {
-        char* res = new char[size];
-        strcpy(res, mes);
-        return res;
+    std::string List::Node::val(void) const {
+        return mes;
     }
     
     //List::Node END
@@ -114,7 +95,7 @@ namespace LIST {
 
     List& List::operator= (const List& ls) {
         this->clear();
-
+        if (ls.empty()) return *this;
         for (auto iter = ls.begin(); iter != ls.end(); ++iter) {
             this->pushBack(*iter);
         }
@@ -135,7 +116,7 @@ namespace LIST {
         return *this;
     }
 
-	void List::pushBack(const char* text) {
+	void List::pushBack(const std::string text) {
         if (size == 0) {
             back = new Node(text);
             head = back;
@@ -163,7 +144,7 @@ namespace LIST {
         size--;
     }
     
-    void List::pushHead(const char* text) {
+    void List::pushHead(const std::string text) {
         if (size == 0) {
             head = new Node(text);
             back = head;
@@ -189,7 +170,7 @@ namespace LIST {
         size--;
     }
 
-    void List::pushIn(const size_t k, const char* text) {
+    void List::pushIn(const size_t k, const std::string text) {
         if (k > size) throw ListExcept("out of range");
         if (k == 0) {
             this->pushHead(text);
@@ -254,7 +235,7 @@ namespace LIST {
         }
     }
     
-    List List::sort(int (*op)(const char*, const char*)) {
+    List List::sort(int (*op)(const std::string, const std::string)) {
         List tmp; bool flag = true;
         for (auto iter = this->begin(); iter != this->end(); ++iter) {
             if (tmp.empty()) {
@@ -293,31 +274,6 @@ namespace LIST {
             }
         }
         *this = ls;
-/*
-        int f1 = 0;
-        if (i1.Index() == 0) f1 = 1;
-        else if (i1.Index() == size-1) f1 = 2;
-        
-        int f2 = 0;
-        if (i2.Index() == 0) f2 = 1;
-        else if (i2.Index() == size-1) f2 = 2;
-
-        
-
-        auto tmp_l = i1.pos->last;
-        auto tmp_n = i1.pos->next;
-        i1.pos->last = i2.pos->last;
-        i1.pos->next = i2.pos->next;
-        i2.pos->last = tmp_l;
-        i2.pos->next = tmp_n;
-
-        if (f1) {
-            (f1 == 1) ? head : back = i2.pos;
-        }
-        if (f2) {
-            (f2 == 1) ? head : back = i1.pos;
-        }
-*/
     }
     //List END
 
@@ -334,30 +290,35 @@ namespace LIST {
     }
 
     List::iterator& List::iterator::operator++(void) {
+        if (pos == nullptr) return *this;
         pos = pos->next;
         index++;
         return *this;
     }
 
     List::iterator List::iterator::operator++(int) {
+        if (pos == nullptr) return *this;
         iterator old = *this;
         ++(*this);
         return old;
     }
 
     List::iterator& List::iterator::operator--(void) {
+        if (pos == nullptr) return *this;
         pos = pos->last;
         index--;
         return *this;
     }
 
     List::iterator List::iterator::operator--(int) {
+        if (pos == nullptr) return *this;
         iterator old = *this;
         --(*this);
         return old;
     }
 
     List::iterator List::iterator::operator+(size_t k) {
+        if (pos == nullptr) return *this;
         auto tmp = pos;
         for (size_t i = 0; i < k; ++i) {
             if (tmp != nullptr) {
@@ -377,7 +338,7 @@ namespace LIST {
         return !(*this == i);
     }
     
-    char* List::iterator::operator* (void) const {
+    std::string List::iterator::operator* (void) const {
         return pos->mes;
     }
 
@@ -395,6 +356,7 @@ namespace LIST {
     }
 
     std::ostream& operator<< (std::ostream& os, const List& list) {
+        if (list.empty()) return os << "\n";
         for (auto iter = list.begin(); iter != list.end(); ++iter) {
             os << *iter << "\n";
         }
@@ -408,47 +370,11 @@ namespace LIST {
         is >> num;
         
         for (size_t i = 0; i < num; ++i) {
-            char* tmp = nullptr;
+            std::string tmp;
             is >> tmp;
             list.pushBack(tmp);
-            delete[] tmp;
         }
 
-        return is;
-    }
-
-    bool stop(char c) {
-        return (c == '\n' || c == ' ' || c == '\t' || c == 0);
-    }
-
-    std::istream& operator>> (std::istream& is, char*& word) {
-        if (word != nullptr) delete[] word;
-
-        char c; size_t count = 0; bool flag = false;
-        is >> c;
-        if (!stop(c)) {
-            word = new char[2];
-            count++;
-            word[0] = c;
-            word[1] = 0;
-            flag = true;
-        }
-        
-        while(!flag || !stop(c)) {
-            is.get(c);
-            if (!flag && stop(c)) continue;
-            if (flag && stop(c)) break;
-            char* tmp = new char[count+2];
-            for (size_t i = 0; i < count; ++i) {
-                tmp[i] = word[i];
-            }
-            tmp[count] = c;
-            tmp[count+1] = 0;
-            count++;
-            delete[] word;
-            word = tmp;
-            flag = true;
-        }
         return is;
     }
 

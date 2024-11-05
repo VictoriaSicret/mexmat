@@ -47,7 +47,7 @@ namespace INTERFACE {
     }
     
     void func(void) {
-        InFace I; int act1 = 0, act2 = 0, way = 0, order = 0; size_t n = 0, m = 0, pos = 0; List list; char* word = nullptr;
+        InFace I; int act1 = 0, act2 = 0, way = 0, order = 0; size_t n = 0, m = 0, pos = 0; List list; std::string word;
         while (true) {
             std::cout << "\nChoose action:\n1)Add list\n2)Print\n3)Make action" << std::endl;
             std::cin >> act1;
@@ -107,7 +107,6 @@ namespace INTERFACE {
                             std::cin >> word;
                             list = I[n];
                             list.pushIn(pos, word);
-                            delete[] word;
                         } else {
                             list = I[n];
                             list.popIn(pos);
