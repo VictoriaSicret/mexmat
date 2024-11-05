@@ -21,4 +21,5 @@ namespace INTERFACE {
         List& operator[] (const size_t);
     };
 
+    void func(void);
 }

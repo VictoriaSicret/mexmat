@@ -19,20 +19,15 @@ namespace LIST {
     //ListExcept END
 
 
-	List::Node::Node(const char* text = nullptr){
-        if (text != nullptr) {
-            size = strlen(text)+1;
-            mes = new char[size];
-            for (size_t i = 0; i < size; ++i) {
-                mes[i] = text[i];
-            }
-        } else {
-            mes = nullptr;
-            size = 0;
+	List::Node::Node(const char* text){
+        size = strlen(text)+1;
+        mes = new char[size];
+        for (size_t i = 0; i < size; ++i) {
+            mes[i] = text[i];
         }
         next = last = nullptr;
     }
-    
+
 	List::Node::~Node() {
         size = 0;
         last = nullptr;
@@ -40,14 +35,30 @@ namespace LIST {
         delete[] mes;
     }
 
+    int cmp (const char* str1, const char* str2) {
+        size_t l1 = strlen(str1), l2 = strlen(str2);
+        if (l1 > l2) return 1;
+        else if (l1 < l2) return -1;
+        size_t i = 0;
+        while (i < l1) {
+            if (str1[i] < str2[i]) return -1;
+            else if (str1[i] > str2[i]) return 1;
+            ++i;
+        }
+
+        return 0;
+    }
+    
+    int cmplen (const char* str1, const char* str2) {
+        if (strlen(str1) < strlen(str2)) return -1;
+        if (strlen(str1) > strlen(str2)) return 1;
+        return 0;
+    }
+
     char* List::Node::val(void) const {
         char* res = new char[size];
         strcpy(res, mes);
         return res;
-    }
-    
-    int cmp(const List::Node& n1, const List::Node& n2, int (*op)(const char*, const char*)) {
-        return op(n1.mes, n2.mes);
     }
     
     //List::Node END
@@ -77,8 +88,18 @@ namespace LIST {
 	}
 
     List::List(const List& ls) {
+        size = 0;
         for (auto iter = ls.begin(); iter != ls.end(); ++iter) {
-            this->pushBack(*iter);
+            if (size == 0) {
+                back = new Node(*iter);
+                head = back;
+                size++;
+                continue;
+            }
+            back->next = new Node(*iter);
+            back->next->last = back;
+            back = back->next;
+            size++;
         }
     }
     
@@ -95,9 +116,7 @@ namespace LIST {
         this->clear();
 
         for (auto iter = ls.begin(); iter != ls.end(); ++iter) {
-            auto tmp = *iter;
-            this->pushBack(tmp);
-            delete[] tmp;
+            this->pushBack(*iter);
         }
 
         return *this;
@@ -156,7 +175,7 @@ namespace LIST {
         head = head->last;
         size++;
     }
-
+    
     void List::popHead(void) {
         if (size == 0) return;
         if (size == 1) {
@@ -202,8 +221,7 @@ namespace LIST {
             return;
         }
 
-        auto iter = this->begin();
-        for (size_t i = 0; i < k; ++i) ++iter;
+        auto iter = this->begin() + k;
         iter.pos->last->next = iter.pos->next;
         iter.pos->next->last = iter.pos->last;
         delete iter.pos;
@@ -221,9 +239,7 @@ namespace LIST {
     List List::add(const List* curr) {
         List res = *this;
         for (auto iter = curr->begin(); iter != curr->end(); ++iter) {
-            auto tmp = *iter;
-            res.back->next = new Node(tmp);
-            delete[] tmp;
+            res.back->next = new Node(*iter);
 
             res.back->next->last = res.back;
             res.back = res.back->next;
@@ -238,64 +254,44 @@ namespace LIST {
         }
     }
     
-    List List::sort(int(*op) (const char*, const char*)) {
-/*        List ls;
+    List List::sort(int (*op)(const char*, const char*)) {
+        List tmp; bool flag = true;
         for (auto iter = this->begin(); iter != this->end(); ++iter) {
-            if (ls.empty()) {
-                ls.pushBack(*iter);
+            if (tmp.empty()) {
+                tmp.pushBack(*iter);
                 continue;
             }
 
-            auto iter1 = ls.begin();
-            while (iter1+1 != ls.end()) {
-                if (op(*iter, *iter1) == 1) {
-                    ls.pushIn(Index(iter1), *iter);
+            for (auto it = tmp.begin(); it != tmp.end(); ++it) {
+                if (op(*iter, *it) == 1) continue;
+                else {
+                    tmp.pushIn(it.Index(), *iter);
+                    flag = false;
                     break;
                 }
             }
+            if (flag) tmp.pushBack(*iter); 
+            else flag = true;
 
-
+            std::cout << tmp.length()<< std::endl;
         }
-*/      List tmp = *this;
-        double factor = 1.25;
-        size_t step = tmp.size-1;
-        while (step >= 1) {
-            for (size_t i = 0; i +step < size; ++i) {
-                auto iter = tmp.begin() + i;
-                auto tmp1 = *iter; auto tmp2 = *(iter+step);
-                if (op(tmp1, tmp2) == 1) {
-                    swap(iter, iter+step);
-                }
-                delete[] tmp1; delete[] tmp2;
-            }
-
-            step /= factor;
-        }
-
         return tmp;
     }
 
     void List::swap (List::iterator i1, List::iterator i2) {
         List ls;
-
-        for (auto iter = this->begin(); iter != this->end(); ++iter) {
+        
+        for (auto iter = i1.lst->begin(); iter != i1.lst->end(); ++iter) {
             if (iter == i1) {
-                auto tmp = *i2;
-                ls.pushBack(tmp);
-                delete[] tmp;
+                ls.pushBack(*i2);
             }
             else if (iter == i2) {
-                auto tmp = *i1;
-                ls.pushBack(tmp);
-                delete[] tmp;
+                ls.pushBack(*i1);
             }
             else {
-                auto tmp = *iter;
-                ls.pushBack(tmp);
-                delete[] tmp;
+                ls.pushBack(*iter);
             }
         }
-
         *this = ls;
 /*
         int f1 = 0;
@@ -382,7 +378,7 @@ namespace LIST {
     }
     
     char* List::iterator::operator* (void) const {
-        return std::move(pos->val());
+        return pos->mes;
     }
 
     size_t List::iterator::Index (void) {
@@ -400,9 +396,7 @@ namespace LIST {
 
     std::ostream& operator<< (std::ostream& os, const List& list) {
         for (auto iter = list.begin(); iter != list.end(); ++iter) {
-            auto tmp = *iter;
-            os << tmp << "\n";
-            delete[] tmp;
+            os << *iter << "\n";
         }
 
         return os;

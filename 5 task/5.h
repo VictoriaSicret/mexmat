@@ -27,10 +27,10 @@ namespace LIST {
 
             Node(const char*);
             ~Node();
-                    
+            
             char* val(void) const;
         };
-        
+
         class iterator {
             public:
             const List *lst;
@@ -70,7 +70,7 @@ namespace LIST {
 		void pushBack(const char*);
         void popBack(void);
 
-        void pushHead(const char *);
+        void pushHead(const char*);
         void popHead(void);
 
         void pushIn(const size_t, const char*);
@@ -82,16 +82,18 @@ namespace LIST {
         List add(const List*);
         void clear(void); 
 	    
-        List sort(int(*)(const char*, const char*));
+        List sort(int (*)(const char*, const char*));
         
         void swap (iterator, iterator);
 
         iterator begin(void) const;
         iterator end(void) const;
-
-        friend int cmp(const Node&, const Node&, int(*) (const char*, const char*));
     
     };
+    
+    int cmp (const char*, const char*);
+    int cmplen (const char*, const char*); 
+    
     std::istream& operator>> (std::istream&, List&);
     
     bool stop(char);
