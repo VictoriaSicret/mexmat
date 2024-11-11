@@ -1,9 +1,16 @@
 #ifndef LIB
 #define LIB
 
+#include <type_traits>
+#include <exception>
+#include <iostream>
+#include <string>
+
 namespace INTERFACE {
     template <typename T>
     class InFace {
+
+        protected:
         T* vars;
         size_t num;
 
@@ -16,10 +23,15 @@ namespace INTERFACE {
 
         InFace& operator+= (const InFace&);
         size_t length (void) const;
-        friend std::ostream& operator<< (std::ostream& os, const InFace&);
+       
+        template <typename V>
+        friend std::ostream& operator<< (std::ostream& os, const InFace<V>&);
 
         T& operator[] (const size_t);
-        void start(void);
+        void start (void);
+        void add (void);
+        void print (void);
+        void action (void);
     };
 }
 
