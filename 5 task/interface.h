@@ -1,13 +1,13 @@
 #ifndef InterFace
 #define InterFace
 
-#include "5.h"
+#include "LIB.h"
 
 namespace InFaceLIST {
     using namespace INTERFACE;
     using namespace LIST;
 
-    class InFaceList: public InFace<List> {
+    class InFaceList: public InFace<List<std::string>> {
         public:
         bool action(void) override;
     };

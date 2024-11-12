@@ -3,7 +3,7 @@
 namespace InFaceLIST {
 
 bool InFaceList::action (void) {
-    size_t act = 0, n = 0, m = 0, way = 0, order = 0, pos = 0; List list; std::string word;
+    size_t act = 0, n = 0, m = 0, way = 0, order = 0, pos = 0; List<std::string> list; std::string word;
     std::cout << "\nChoose action:\n1)Push\n2)Pop\n3)Clear\n4)Link\n5)Sort" << std::endl;
     std::cin >> act;
             
@@ -51,7 +51,7 @@ bool InFaceList::action (void) {
         }
 
         if (way == 1 || way == 3) std::cout << "\n" << list << "\n" << std::endl;
-        if (way == 2 || way == 3) this->InFace<List>::operator+=(InFace<List>(list));
+        if (way == 2 || way == 3) *this += list;
         
     }
 
