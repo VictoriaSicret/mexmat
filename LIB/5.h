@@ -13,11 +13,20 @@ namespace LIST {
             std::string mes;
             Node* last;
             Node* next;
+                       
+            Node(const std::string text): mes(text) {
+        		next = nullptr;
+        		last = nullptr; 
+    		}		
 
-            Node(const std::string);
-            ~Node();
+			~Node() {
+    		    last = nullptr;
+    		    next = nullptr;
+    		}
             
-            std::string val(void) const;
+            std::string List::Node::val(void) const {
+     		   return mes;
+  		  	}
         };
 
         class iterator {
@@ -26,20 +35,68 @@ namespace LIST {
             Node* pos;
             size_t index;
 
-            iterator(const List*, Node*, const size_t);
-            ~iterator(void);
+    		iterator (const List* list = nullptr, Node* node = nullptr, const size_t ind = 0): index(ind) {
+    	    	lst = list;
+        		pos = node;
+    		}
+    		
+            ~iterator(void) {
+        		lst = nullptr;
+        		pos = nullptr;
+    		}
 
-            iterator& operator++(void);
-            iterator operator++(int);
-            iterator operator+ (size_t);
-            iterator& operator--(void);
-            iterator operator--(int);
+            iterator& operator++(void) {
+        		if (pos == nullptr) return *this;
+        		pos = pos->next;
+        		index++;
+        		return *this;
+    		}
+    	    iterator operator++(int) {
+		        if (pos == nullptr) return *this;
+    		    iterator old = *this;
+    		    ++(*this);
+    		    return old;
+    		}
 
-            bool operator== (const iterator&) const;
-            bool operator!= (const iterator&) const;
+    		iterator& operator--(void) {
+    		    if (pos == nullptr) return *this;
+    		    pos = pos->last;
+    		    index--;
+    		    return *this;
+    		}
 
-            std::string operator* (void) const;
-            size_t Index (void);
+    		iterator operator--(int) {
+    		    if (pos == nullptr) return *this;
+    		    iterator old = *this;
+    		    --(*this);
+    		    return old;
+    		}
+    
+    	    iterator operator+(size_t k) {
+    		    if (pos == nullptr) return *this;
+    		    auto tmp = pos;
+    		    for (size_t i = 0; i < k; ++i) {
+    		        if (tmp != nullptr) tmp = tmp->next;
+					else return lst->end();
+        		}
+    		    return iterator(lst, tmp, index+k);
+    		}
+    		
+    		bool operator== (const iterator& i) const {
+    		    return (lst == i.lst && index == i.index) ? true : false;
+    		}
+
+    		bool operator!= (const iterator& i) const {
+    		    return !(*this == i);
+    		}
+			
+		    std::string operator* (void) const {
+    		    return pos->mes;
+    		}
+
+    		size_t Index (void) {
+    		    return index;
+    		}
         };
         
 		Node* head;
@@ -48,44 +105,283 @@ namespace LIST {
 		
 		public:
 
-		List(void);
-		~List(void);
+		List(void){
+			head = nullptr;
+        	back = nullptr;
+        	size = 0;
+		}
+		
+		~List() {
+			while (size != 0) {
+    	        if (size == 1) {
+    	            delete back;
+    	            back = nullptr; head = nullptr;
+    	            size = 0;
+    	            continue;
+    	        }
+				back = back->last;
+    	        back->next->last = nullptr;
+    	        delete back->next;
+    	        back->next = nullptr;
+    	        size--;
+			}
+		}
 
-        List(const List&);
-        List(List&&);
-        List& operator= (const List&);
-        List& operator= (List&&);
+    	List(const List& ls) {
+        	size = 0;
+        	for (auto iter = ls.begin(); iter != ls.end(); ++iter) {
+        	    if (size == 0) {
+        	        back = new Node(*iter);
+        	        head = back;
+        	        size++;
+        	        continue;
+        	    }
+        	    back->next = new Node(*iter);
+        	    back->next->last = back;
+        	    back = back->next;
+        	    size++;
+        	}
+    	}
+    	
+        List(List&& move) {
+       		size = move.size;
+        	move.size = 0;
+        	head = move.head;
+        	move.head = nullptr;
+        	back = move.back;
+        	move.back = nullptr;
+    	}
+    	
+        List& operator= (const List& ls) {
+        	this->clear();
+        	if (ls.empty()) return *this;
+        	for (auto iter = ls.begin(); iter != ls.end(); ++iter) {
+        	    this->pushBack(*iter);
+        	}
 
-		void pushBack(const std::string);
-        void popBack(void);
+        	return *this;
+    	}
+    	
+        List& operator= (List&& move) {
+    	    this->clear();
 
-        void pushHead(const std::string);
-        void popHead(void);
+    	    size = move.size;
+    	    move.size = 0;
+    	    head = move.head;
+    	    move.head = nullptr;
+    	    back = move.back;
+    	    move.back = nullptr;
+	
+   		    return *this;
+    	}
 
-        void pushIn(const size_t, const std::string);
-        void popIn(const size_t);        
+		void pushBack(const std::string text) {
+    	    if (size == 0) {
+   		        back = new Node(text);
+    	        head = back;
+        	    size = 1;
+        	    return;
+        	}
+			back->next = new Node(text);
+			back->next->last = back;
+			back = back->next;
+        	size++;
+		}
+		
+        void popBack(void) {
+        	if (size == 0) {
+        	    return;
+        	}
+        	if (size == 1) {
+        	    delete back;
+        	    back = head = nullptr;
+        	} else {
+        	    back = back->last;
+        	    delete back->next;
+        	    back->next = nullptr;
+        	}
+        	size--;
+    	}
 
-        bool empty(void) const;
-        size_t length(void) const;
+        void pushHead(const std::string text) {
+        	if (size == 0) {
+        	    head = new Node(text);
+        	    back = head;
+        	    size = 1;
+        	    return;
+        	}
+        	head->last = new Node(text);
+        	head->last->next = head;
+        	head = head->last;
+        	size++;
+    	}
+    	
+        void popHead(void) {
+        	if (size == 0) return;
+        	if (size == 1) {
+        	    delete back;
+        	    back = head = nullptr;
+        	} else {
+        	    head = head->next;
+        	    delete head->last;
+        	    head->last = nullptr;
+        	}
+        	size--;
+    	}
+
+        void pushIn(const size_t k, const std::string text) {
+        	if (k > size) throw Except("out of range");
+        	if (k == 0) {
+        	    this->pushHead(text);
+        	    return;
+        	}
+        	if (k == size) {
+        	    this->pushBack(text);
+        	    return;
+        	}
+        	auto iter = this->begin();
+        	for (size_t i = 0; i < k; ++i) ++iter;
+        	auto block = new Node(text);
+
+        	iter.pos->last->next = block;
+        	block->next = iter.pos;
+        	block->last = iter.pos->last;
+        	iter.pos->last = block;
+        	size++;
+    	}
+		 
+        void popIn(const size_t k) {
+        	if (k > size) throw Except("out of range");
+        	if (k == 0) {
+        	    this->popHead();
+        	    return;
+        	}
+        	if (k == size) {
+        	    this->popBack();
+        	    return;
+        	}
+
+        	auto iter = this->begin() + k;
+        	iter.pos->last->next = iter.pos->next;
+        	iter.pos->next->last = iter.pos->last;
+        	delete iter.pos;
+        	size--;
+    	}     
+
+        bool empty(void) const {
+        	return size == 0;
+   		}
+        size_t length(void) const {
+        	return size;
+    	}
         
-        List add(const List*);
-        void clear(void); 
+    	List add(const List* curr) {
+    	    List res = *this;
+    	    for (auto iter = curr->begin(); iter != curr->end(); ++iter) {
+    	        res.back->next = new Node(*iter);
+
+    	        res.back->next->last = res.back;
+    	        res.back = res.back->next;
+    	        res.size++;
+    	    }
+    	    return res;
+    	}
+    	
+        void clear (void) {
+    	    while (size > 0) {
+    	        this->popBack();
+    	    }
+    	}
 	    
-        List sort(int (*)(const std::string, const std::string));
+   		List sort(int (*op)(const std::string, const std::string)) {
+        	List tmp; bool flag = true;
+        	for (auto iter = this->begin(); iter != this->end(); ++iter) {
+        	    if (tmp.empty()) {
+        	        tmp.pushBack(*iter);
+        	        continue;
+        	    }
+	
+    	        for (auto it = tmp.begin(); it != tmp.end(); ++it) {
+    	            if (op(*iter, *it) == 1) continue;
+    	            else {
+    	                tmp.pushIn(it.Index(), *iter);
+    	                flag = false;
+    	                break;
+        	        }
+        	    }
+        	    if (flag) tmp.pushBack(*iter); 
+        	    else flag = true;
+
+        	}
+        	return tmp;
+    	}
         
-        void swap (iterator, iterator);
+        void swap (iterator i1, iterator i2) {
+    	    List ls;
+        
+    	    for (auto iter = i1.lst->begin(); iter != i1.lst->end(); ++iter) {
+    	        if (iter == i1) {
+    	            ls.pushBack(*i2);
+    	        }
+    	        else if (iter == i2) {
+    	            ls.pushBack(*i1);
+    	        }
+    	        else {
+    	            ls.pushBack(*iter);
+    	        }
+    	    }
+    	    *this = ls;
+    	}
 
-        iterator begin(void) const;
-        iterator end(void) const;
+    	iterator begin(void)  const{
+    	    return iterator(this, head, 0);
+    	}
 
-		static std::string name (void);
+    	iterator end(void) const {
+    	    return iterator(this, back->next, size);
+    	}
+
+		static std::string List::name (void) {
+			return std::string("List");
+		}
+
     };
     
-    int cmp (const std::string, const std::string);
-    int cmplen (const std::string, const std::string); 
-    
-    std::istream& operator>> (std::istream&, List&);
-    std::ostream& operator<< (std::ostream&, const List&);
-}
+    int cmp (const std::string str1, const std::string str2) {
+        if (cmplen(str1, str2) != 0) return cmplen(str1, str2);
+        if (str1 > str2) return 1;
+        if (str1 < str2) return -1;
 
+        return 0;
+    }
+    
+    int cmplen (const std::string str1, const std::string str2) {
+        if (str1.length() < str2.length()) return -1;
+        if (str1.length() > str2.length()) return 1;
+        return 0;
+    }
+    
+    std::ostream& operator<< (std::ostream& os, const List& list) {
+        if (list.empty()) return os << "\n";
+        for (auto iter = list.begin(); iter != list.end(); ++iter) {
+            os << *iter << "\n";
+        }
+
+        return os;
+    }
+
+    std::istream& operator>> (std::istream& is, List& list) {
+        list.clear();
+        size_t num = 0;
+        is >> num;
+        
+        for (size_t i = 0; i < num; ++i) {
+            std::string tmp;
+            is >> tmp;
+            list.pushBack(tmp);
+        }
+
+        return is;
+    }
+    
 #endif
