@@ -1,19 +1,10 @@
 #ifndef LIB5
 #define LIB5
 
-#include <exception>
-#include <cstring>
-#include <iostream>
+#include "LIB.h"
 
 namespace LIST {
-	class ListExcept: public std::exception {
-		std::string message;
-		public:
-		ListExcept(const std::string);
-		~ListExcept();
-		const char* what() const noexcept override;
-	};
-
+    using namespace EXCEPT;
 	class List {
 
 		class Node {
@@ -86,7 +77,8 @@ namespace LIST {
 
         iterator begin(void) const;
         iterator end(void) const;
-    
+
+		static std::string name (void);
     };
     
     int cmp (const std::string, const std::string);

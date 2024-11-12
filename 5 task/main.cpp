@@ -1,8 +1,9 @@
 #include "interface.h"
 
-using namespace INTERFACE;
+using namespace InFaceLIST;
 int main(void) {
-    func();
+    InFaceList interface;
+    interface.start();
 
     return 0;
 }
