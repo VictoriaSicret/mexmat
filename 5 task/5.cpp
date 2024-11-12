@@ -1,19 +1,6 @@
 #include "5.h"
 
 namespace LIST {
-    //ListExcept BEGIN
-
-	const char* ListExcept::what() const noexcept {
-		return message.c_str();
-	}
-
-	ListExcept::ListExcept(const std::string text): message(text) { }
-
-	ListExcept::~ListExcept() {	}
-
-    //ListExcept END
-
-
 	List::Node::Node(const std::string text): mes(text) {
         next = nullptr;
         last = nullptr; 
@@ -171,7 +158,7 @@ namespace LIST {
     }
 
     void List::pushIn(const size_t k, const std::string text) {
-        if (k > size) throw ListExcept("out of range");
+        if (k > size) throw Except("out of range");
         if (k == 0) {
             this->pushHead(text);
             return;
@@ -192,7 +179,7 @@ namespace LIST {
     } 
 
     void List::popIn(const size_t k) {
-        if (k > size) throw ListExcept("out of range");
+        if (k > size) throw Except("out of range");
         if (k == 0) {
             this->popHead();
             return;
@@ -254,7 +241,6 @@ namespace LIST {
             if (flag) tmp.pushBack(*iter); 
             else flag = true;
 
-            std::cout << tmp.length()<< std::endl;
         }
         return tmp;
     }
@@ -354,6 +340,10 @@ namespace LIST {
     List::iterator List::end(void) const {
         return iterator(this, back->next, size);
     }
+
+	std::string List::name (void) {
+		return std::string("List");
+	}
 
     std::ostream& operator<< (std::ostream& os, const List& list) {
         if (list.empty()) return os << "\n";

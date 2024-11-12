@@ -1,25 +1,16 @@
+#ifndef InterFace
+#define InterFace
+
 #include "5.h"
 
-namespace INTERFACE {
+namespace InFaceLIST {
+    using namespace INTERFACE;
     using namespace LIST;
 
-    class InFace {
-        List* vars;
-        size_t num;
-
+    class InFaceList: public InFace<List> {
         public:
-        
-        InFace(void);
-        InFace(const List&);
-
-        ~InFace(void);
-
-        InFace& operator+= (const InFace&);
-        size_t length (void) const;
-        friend std::ostream& operator<< (std::ostream& os, const InFace&);
-
-        List& operator[] (const size_t);
+        bool action(void) override;
     };
-
-    void func(void);
 }
+
+#endif
