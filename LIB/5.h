@@ -5,16 +5,27 @@
 
 namespace LIST {
     using namespace EXCEPT;
+    int cmp (const std::string, const std::string);
+    int cmplen (const std::string, const std::string);
+	template <typename T>
+	class List;
+    
+	template <typename T>
+	std::ostream& operator<< (std::ostream&, const List<T>&);
+    template <typename T>
+	std::istream& operator>> (std::istream&, List<T>&);
+	
+	template <typename T>
 	class List {
-
+		template <typename V>
 		class Node {
             public:
             
-            std::string mes;
+            V mes;
             Node* last;
             Node* next;
                        
-            Node(const std::string text): mes(text) {
+            Node(const V text): mes(text) {
         		next = nullptr;
         		last = nullptr; 
     		}		
@@ -24,18 +35,19 @@ namespace LIST {
     		    next = nullptr;
     		}
             
-            std::string List::Node::val(void) const {
+			V val(void) const {
      		   return mes;
   		  	}
         };
 
         class iterator {
             public:
+
             const List *lst;
-            Node* pos;
+			Node<T>* pos;
             size_t index;
 
-    		iterator (const List* list = nullptr, Node* node = nullptr, const size_t ind = 0): index(ind) {
+    		iterator (const List* list = nullptr, Node<T>* node = nullptr, const size_t ind = 0): index(ind) {
     	    	lst = list;
         		pos = node;
     		}
@@ -90,7 +102,7 @@ namespace LIST {
     		    return !(*this == i);
     		}
 			
-		    std::string operator* (void) const {
+		    T operator* (void) const {
     		    return pos->mes;
     		}
 
@@ -99,8 +111,8 @@ namespace LIST {
     		}
         };
         
-		Node* head;
-		Node* back;
+		Node<T>* head;
+		Node<T>* back;
         size_t size;
 		
 		public:
@@ -131,12 +143,12 @@ namespace LIST {
         	size = 0;
         	for (auto iter = ls.begin(); iter != ls.end(); ++iter) {
         	    if (size == 0) {
-        	        back = new Node(*iter);
+        	        back = new Node<T>(*iter);
         	        head = back;
         	        size++;
         	        continue;
         	    }
-        	    back->next = new Node(*iter);
+        	    back->next = new Node<T>(*iter);
         	    back->next->last = back;
         	    back = back->next;
         	    size++;
@@ -175,14 +187,14 @@ namespace LIST {
    		    return *this;
     	}
 
-		void pushBack(const std::string text) {
+		void pushBack(const T text) {
     	    if (size == 0) {
-   		        back = new Node(text);
+   		        back = new Node<T>(text);
     	        head = back;
         	    size = 1;
         	    return;
         	}
-			back->next = new Node(text);
+			back->next = new Node<T>(text);
 			back->next->last = back;
 			back = back->next;
         	size++;
@@ -203,14 +215,14 @@ namespace LIST {
         	size--;
     	}
 
-        void pushHead(const std::string text) {
+        void pushHead(const T text) {
         	if (size == 0) {
-        	    head = new Node(text);
+        	    head = new Node<T>(text);
         	    back = head;
         	    size = 1;
         	    return;
         	}
-        	head->last = new Node(text);
+        	head->last = new Node<T>(text);
         	head->last->next = head;
         	head = head->last;
         	size++;
@@ -229,7 +241,7 @@ namespace LIST {
         	size--;
     	}
 
-        void pushIn(const size_t k, const std::string text) {
+        void pushIn(const size_t k, const T text) {
         	if (k > size) throw Except("out of range");
         	if (k == 0) {
         	    this->pushHead(text);
@@ -241,7 +253,7 @@ namespace LIST {
         	}
         	auto iter = this->begin();
         	for (size_t i = 0; i < k; ++i) ++iter;
-        	auto block = new Node(text);
+        	auto block = new Node<T>(text);
 
         	iter.pos->last->next = block;
         	block->next = iter.pos;
@@ -278,7 +290,7 @@ namespace LIST {
     	List add(const List* curr) {
     	    List res = *this;
     	    for (auto iter = curr->begin(); iter != curr->end(); ++iter) {
-    	        res.back->next = new Node(*iter);
+    	        res.back->next = new Node<T>(*iter);
 
     	        res.back->next->last = res.back;
     	        res.back = res.back->next;
@@ -293,7 +305,7 @@ namespace LIST {
     	    }
     	}
 	    
-   		List sort(int (*op)(const std::string, const std::string)) {
+   		List sort(int (*op)(const T, const T)) {
         	List tmp; bool flag = true;
         	for (auto iter = this->begin(); iter != this->end(); ++iter) {
         	    if (tmp.empty()) {
@@ -341,7 +353,7 @@ namespace LIST {
     	    return iterator(this, back->next, size);
     	}
 
-		static std::string List::name (void) {
+		static std::string name (void) {
 			return std::string("List");
 		}
 
@@ -361,7 +373,8 @@ namespace LIST {
         return 0;
     }
     
-    std::ostream& operator<< (std::ostream& os, const List& list) {
+	template <typename T>
+    std::ostream& operator<< (std::ostream& os, const List<T>& list) {
         if (list.empty()) return os << "\n";
         for (auto iter = list.begin(); iter != list.end(); ++iter) {
             os << *iter << "\n";
@@ -369,8 +382,9 @@ namespace LIST {
 
         return os;
     }
-
-    std::istream& operator>> (std::istream& is, List& list) {
+	
+	template <typename T>
+    std::istream& operator>> (std::istream& is, List<T>& list) {
         list.clear();
         size_t num = 0;
         is >> num;
@@ -383,5 +397,6 @@ namespace LIST {
 
         return is;
     }
+}
     
 #endif
