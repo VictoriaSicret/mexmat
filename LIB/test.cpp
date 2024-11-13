@@ -1,5 +1,6 @@
 #include "LIB.h"
 
 int main (void) {
-    return 0;
+	LIST::List<std::string> tmp;
+	return 0;
 }
