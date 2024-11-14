@@ -44,14 +44,15 @@ namespace LIST {
   		  	}
         };
 
+        template <typename V>
         class iterator {
             public:
 
-            const List *lst;
-			Node<T>* pos;
+            const List<V> *lst;
+			Node<V>* pos;
             size_t index;
 
-    		iterator (const List* list = nullptr, Node<T>* node = nullptr, const size_t ind = 0): index(ind) {
+    		iterator (const List<V>* list = nullptr, Node<V>* node = nullptr, const size_t ind = 0): index(ind) {
     	    	lst = list;
         		pos = node;
     		}
@@ -106,7 +107,7 @@ namespace LIST {
     		    return !(*this == i);
     		}
 			
-		    T operator* (void) const {
+		    V operator* (void) const {
     		    return pos->mes;
     		}
 
@@ -332,8 +333,8 @@ namespace LIST {
         	return tmp;
     	}
         
-        void swap (iterator i1, iterator i2) {
-    	    List ls;
+        void swap (iterator<T> i1, iterator<T> i2) {
+    	    List<T> ls;
         
     	    for (auto iter = i1.lst->begin(); iter != i1.lst->end(); ++iter) {
     	        if (iter == i1) {
@@ -349,11 +350,11 @@ namespace LIST {
     	    *this = ls;
     	}
 
-    	iterator begin(void)  const{
+    	iterator<T> begin(void)  const{
     	    return iterator(this, head, 0);
     	}
 
-    	iterator end(void) const {
+    	iterator<T> end(void) const {
     	    return iterator(this, back->next, size);
     	}
 
