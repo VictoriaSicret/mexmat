@@ -1,7 +1,8 @@
 #ifndef InterFace
 #define InterFace
 
-#include "LIB.h"
+#include "LIST.h"
+#include "INTERFACE.h"
 
 namespace InFaceLIST {
     using namespace INTERFACE;
