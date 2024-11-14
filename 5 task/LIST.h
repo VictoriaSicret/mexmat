@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "EXCEPT.h"
-#Include "COMPARE.h"
+#include "COMPARE.h"
 
 namespace LIST {
     using namespace EXCEPT;
@@ -389,7 +389,7 @@ namespace LIST {
         is >> num;
         
         for (size_t i = 0; i < num; ++i) {
-            std::string tmp;
+            T tmp;
             is >> tmp;
             list.pushBack(tmp);
         }
