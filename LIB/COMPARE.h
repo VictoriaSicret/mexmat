@@ -1,15 +1,7 @@
-#include "LIB.h"
+#ifndef COMPARE
+#define COMPARE
 
-namespace EXCEPT {
-	const char* Except::what() const noexcept {
-		return message.c_str();
-	}
-
-	Except::Except(const std::string text): message(text) { }
-
-	Except::~Except() {	}
-    
-}
+#include <string>
 
 namespace CMP {
 	int cmp (const std::string str1, const std::string str2) {
@@ -27,3 +19,5 @@ namespace CMP {
     }
     
 }
+
+#endif
