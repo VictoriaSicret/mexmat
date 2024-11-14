@@ -1,9 +1,19 @@
 #include "5.h"
 
+template<>
+std::string LIST::generateType<std::string>(void) {
+    size_t num = rand()%100 +1; std::string tmp, res; char c;
+    for (size_t i = 0; i < num; ++i) {
+        c = rand()%25 +98;
+        res += (tmp = c);
+    }
+    return res;
+}
+
 namespace InFaceLIST {
 
 bool InFaceList::action (void) {
-    size_t act = 0, n = 0, m = 0, way = 0, order = 0, pos = 0; List<std::string> list; std::string word;
+    size_t act = 0, n = 0, m = 0, way = 0, order = 0, pos = 0, func = 0; List<std::string> list; std::string word;
     std::cout << "\nChoose action:\n1)Push\n2)Pop\n3)Clear\n4)Link\n5)Sort" << std::endl;
     std::cin >> act;
             
@@ -35,10 +45,15 @@ bool InFaceList::action (void) {
         } else if (act == 4) {
             list = vars[n].add(&vars[m]);
         } else {
-            std::cout << "\nEnter position:" << std::endl;
-            std::cin >> pos;
-            if (pos > vars[n].length()) return true;   
-
+            std::cout <<"\nChoose way:\n1)" << ((act == 1) ? "pushHead": "popHead") << "\n2)" << ((act == 1) ? "pushIn" : "popIn") << "\n3)" << ((act == 1) ? "pushBack" : "popBack") << std::endl;
+            std::cin >> func;
+            if (func != 1 && func != 2 && func != 3) return true;
+            if (func == 2) {
+                std::cout << "\nEnter position:" << std::endl;
+                std::cin >> pos;
+                if (pos > vars[n].length()) return true;   
+            } else  if (func == 1) pos = 0;
+            else pos = vars[n].length();
             if (act == 1) {
                 std::cout << "\nEnter word:" << std::endl;
                 std::cin >> word;
