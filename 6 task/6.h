@@ -1,7 +1,7 @@
 #ifndef LIB6
 #define LIB6
 
-
+#include "EXCEPT.h"
 
 namespace PAIR {
     template <typename T, typename K>
@@ -86,6 +86,11 @@ namespace RBTREE {
                 this->left = n;
             }
 
+            void change(void) {
+                if (color = RED) color = BLACK;
+                else color = RED;
+            }
+
             void makeRightChild(node* n) {
                 n->parent = this;
                 this->right = n;
@@ -163,12 +168,6 @@ namespace RBTREE {
         }
 
         node<K, V>* root;
-        size_t num;
-
-        RBTree(node<K, V>* head, size_t n) {
-            root = head;
-            num = n;
-        }
 
         iterator<K, V> begin(void) {
             return iterator(this, root, nullptr);
@@ -177,29 +176,24 @@ namespace RBTREE {
         public:
 
         RBTree(void) {
-            num = 0;
             head = nullptr;
         }
 
-        bool empty(void) {
-            return num == 0;
+        RBTree(node<K, V>* head) {
+            root = head;
         }
 
-        size_t length(void) {
-            retrun num;
+        bool empty(void) {
+            return head == nullptr;
         }
 
         void clear(void) {
-            if (num == 0){
-            } else if (num == 1) {
+            if (this->empty()){
+            } else if (head->left == nullptr && head->right == nullptr) {
                 delete root;
-                num = 0;
             } else {
-                RBTree l(root->left, num-1);
-                RBTree r(root->right, num-1);
-
-                l.root->parent = nullptr;
-                r.root->parent = nullptr;
+                RBTree l(root->left);
+                RBTree r(root->right);
                 l.clear();
                 r.clear();
                 delete root;
@@ -211,26 +205,27 @@ namespace RBTREE {
         }
 
         bool find(const K& key, V& value) {
-            if (num == 0) return false;
-            auto iter = this->begin();
-            node tmp(key, value);
-            while (*iter != nullptr) {
-                if (*iter == node) {
-                    value = (*iter)->Value;
-                    return true;
-                }
-
-                if (*iter < node) ++iter; 
-                else --iter;
+            if (this->empty) return false;
+            if (head.Key() == key) {
+                value = head.Value();
+                return true;
+            } else if (head.Key() < key) {
+                RBTree tmp(head->left);
+                return tmp->find(key, value);
+            } else {
+                RBTree tmp(head->right);
+                return tmp->find(key, value);
             }
-
-            return false;
         }
 
         V& operator[] (const K& key) {
             V tmp;
             if (find(key, tmp)) return tmp;
-            
+            else throw Except("invalid key");
+        }
+
+        void insert(const K& key, const V& value) {
+            if (this->empty)
         }
     }
 }
