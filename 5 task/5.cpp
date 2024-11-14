@@ -1,4 +1,5 @@
 #include "5.h"
+#include "COMPARE.h"
 
 template<>
 std::string LIST::generateType<std::string>(void) {
@@ -11,6 +12,7 @@ std::string LIST::generateType<std::string>(void) {
 }
 
 namespace InFaceLIST {
+    using namespace CMP;
 
 bool InFaceList::action (void) {
     size_t act = 0, n = 0, m = 0, way = 0, order = 0, pos = 0, func = 0; List<std::string> list; std::string word;

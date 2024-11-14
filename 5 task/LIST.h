@@ -3,11 +3,9 @@
 
 #include <iostream>
 #include "EXCEPT.h"
-#include "COMPARE.h"
 
 namespace LIST {
     using namespace EXCEPT;
-    using namespace CMP;
 	template <typename T>
 	class List;
     
