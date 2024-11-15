@@ -417,7 +417,7 @@ namespace LIST {
     template <typename T>
     class ListInFace {
         List<T>* list;
-        typename List<T>::iterator<T> pos;
+        typename List<T>::template iterator<T> pos;
 
         public:
 
