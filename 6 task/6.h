@@ -6,7 +6,7 @@
 namespace PAIR {
     template <typename T, typename K>
     class pair {
-        const T First;
+        T First;
         K Second;
         public:
 
@@ -23,7 +23,12 @@ namespace PAIR {
 
         ~pair(void) {}
 
-        const T& first(void) const {
+        pair& operator= (const pair& p) {
+            First = p.First;
+            Second = p.Second;
+        }
+
+        T& first(void) {
             return First;
         }
 
@@ -38,23 +43,32 @@ namespace RBTREE {
 
     using namespace PAIR;
     using namespace EXCEPT;
+
     template <typename K, typename V>
     class RBTree {
+
         template <typename T, typename L>
         class node {
+
             public:
+
             pair<T, L> key_value;
             COLOR color;
             node* parent;
             node* left;
             node* right;
 
-            node(T k = T(), L val = L()): {
+            static node null;
+            node(T, L, COLOR);
+
+            null(T(), L(), BLACK);
+
+            node(T k = T(), L val = L(), COLOR c = RED): {
                 key_value = pair<T, L>(k, val);
-                color = red;
-                parent = nullptr;
-                left = nullptr;
-                right = nullptr;
+                color = c;
+                parent = &null;
+                left = &null;
+                right = &null;
             }
 
             ~node(void) {
@@ -63,12 +77,15 @@ namespace RBTREE {
                 right = nullptr;
             }
 
-            void makeLeftParent(node* n) {
-                n->left = this;
-                this->parent = n;
+            node& operator= (const node& n) {
+                key_value = n.key_value;
+                color = n.color;
+                parent = n.parent;
+                left = n.left;
+                right = n.right;
             }
 
-            const T& Key(void) const{
+            T& Key(void) const{
                 return key_value.first();
             }
 
@@ -76,128 +93,85 @@ namespace RBTREE {
                 return key_value.second();
             }
 
-            void makeRightParent(node* n) {
-                n->right = this;
-                this->parent = n;
-            }
+        };
 
-            void makeLeftChild(node* n) {
-                n->parent = this;
-                this->left = n;
-            }
+        node<V, K>* root;
+        size_t num;
 
-            void change(void) {
-                if (color = RED) color = BLACK;
-                else color = RED;
-            }
+        private:
 
-            void makeRightChild(node* n) {
-                n->parent = this;
-                this->right = n;
-            }
-
-            bool operator< (const node& n) {
-                return key_value.first < n.key_value.first;
-            }
-
-            bool operator> (const node& n) {
-                return key_value.first > n.key_value.first;
-            }
-
-            bool operator== (const node& n) {
-                return key_value.first == n.key_value.first;
-            }
-
-            bool operator!= (const node& n) {
-                return key_value.first  n.key_value.first;
-            }
-
-            bool operator<= (const node& n) {
-                return key_value.first <= n.key_value.first;
-            }
-
-            bool operator>= (const node& n) {
-                return key_value.first >= n.key_value.first;
-            }
-
+        node<K, V>* newNode(pair<K, V>& p) {
+            ++num;
+            node<V, K>* res = new node<K, V>(p.first, p.second);
+            return res;
         }
 
-        template <typename T, typename L>
-        class iterator {
-            const RBTree<T, L>* tree;
-            node<T, L>* pos;
-            node<T, L>* old;
-
-            public:
-
-            iterator(const RBTree<T, L>* t, const node<T, L>* p, const node<T, L>* o) {
-                tree = t; pos = p; old = o;
-            }
-
-            ~iterator(void) {
-                tree = nullptr;
-                pos = nullptr;
-                old = nullptr;
-            }
-
-            iterator operator~(void) {
-                if (old == nullptr) {
-                    pos = nullptr;
-                    old = nullptr;
-                }
-
-                pos = old;
-                old = pos->parent;
-            }
-
-            iterator operator++(void) {
-                old = pos;
-                pos = pos->right;
-            }
-
-            iterator operator--(void) {
-                old = pos;
-                pos = pos->left;
-            }
-
-            pair<T, L>& operator*(void) {
-                if (pos != nullptr) return pos;
-                return node();
-            }
-
+        void delNode(node<K, V>* n) {
+            --num;
+            delete n;
         }
 
-        node<K, V>* root;
-
-        iterator<K, V> begin(void) {
-            return iterator(this, root, nullptr);
+        void clear(node<K, V>* n) {
+            if (n == &node::null) return;
+            clear(n->left);
+            clear(n->right);
+            delNode(n);
         }
+
+        node<K, V>* grandparent(const node<K, V>* n) {
+            return n->parent->parent;
+        }
+
+        node<K, V>* uncle(const node<K, V>* n) {
+            auto grand = this->grandparent(n);
+            return (grand->left == n) ? grand->right : grand->left;
+        }
+
+        node<K, V>* rotateL(node<K, V>* a) {
+            auto b = a->right;
+            auto med = b->left; 
+            b->left = a;
+            a->right = med;
+            b->parent = a->parent;
+            a->parent = b;
+        }
+
+        node<K, V>* rotateR(node<K, V>* n) {
+            auto b = n->left;
+            b->parent = n->parent;
+            if (n->parent != nullptr) {
+                (n->parent->left == n) ? n->parent->left = b : n->parent->right = b;
+            }
+
+            n->left = b->right;
+            if (b->right != nullptr) b->right->parent = n;
+
+            n->parent = b;
+            b->right = n;
+
+}
 
         public:
 
         RBTree(void) {
-            head = nullptr;
+            root = &node::null;
         }
 
-        RBTree(node<K, V>* head) {
-            root = head;
+        RBTree(node<K, V>* n) {
+            root = n;
         }
 
         bool empty(void) {
-            return head == nullptr;
+            return num == 0;
+        }
+
+        size_t Num(void) {
+            return num;
         }
 
         void clear(void) {
-            if (this->empty()){
-            } else if (head->left == nullptr && head->right == nullptr) {
-                delete root;
-            } else {
-                RBTree l(root->left);
-                RBTree r(root->right);
-                l.clear();
-                r.clear();
-                delete root;
-            }
+            clear(root);
+            root = &node::null;
         }
 
         ~RBTree(void) {
@@ -206,14 +180,14 @@ namespace RBTREE {
 
         bool find(const K& key, V& value) {
             if (this->empty) return false;
-            if (head.Key() == key) {
-                value = head.Value();
+            if (root.Key() == key) {
+                value = root.Value();
                 return true;
-            } else if (head.Key() < key) {
-                RBTree tmp(head->left);
+            } else if (root.Key() < key) {
+                RBTree tmp(root->left);
                 return tmp->find(key, value);
             } else {
-                RBTree tmp(head->right);
+                RBTree tmp(root->right);
                 return tmp->find(key, value);
             }
         }
@@ -224,10 +198,68 @@ namespace RBTREE {
             else throw Except("invalid key");
         }
 
-        void insert(const K& key, const V& value) {
-            if (this->empty)
+        void insert(const K& key, const V& value, const node<K, V>* old = &node::null) {
+            if (this->empty()) {
+                root = new node<K, V>(key, value);
+                root->parent = old;
+            } else if (root->Key() == key) {
+                root->Value() = value;
+            } else if (root->Key() < key) {
+                RBTree tmp(root->left);
+                tmp.insert(key, value, root);
+            } else {
+                RBTree tmp (root->right);
+                tmp.insert(key, value, root);
+            }
         }
-    }
+
+        void remove(const K& key) {
+            if (!(this->empty())) {
+                if (root->Key() < key) {
+                    RBTree tmp(root->left);
+                    tmp.remove(key);
+                } else if (root->Key() > key) {
+                    RBTree tmp(root->right);
+                    tmp.remove(key);
+                } else {
+                    if (root->left == nullptr && root->right == nullptr) {
+
+                        if (root->parent == nullptr) {
+                            delete root;
+                            return;
+                        }
+
+                        (root->parent->left == root) ? root->parent->left = nullptr : root->parent->right = nullptr;
+                        delete root;
+
+                    } else if ((root->left != nullptr && root->right == nullptr) || (root->left == nullptr && root->right != nullptr)) {
+
+                        auto tmp = (root->left != nullptr) ? root->left : root->right;
+                        tmp->parent = root->parent;
+                        auto old = root;
+                        root = tmp;
+                        delete old;
+
+                    } else if (root->right->left == nullptr) {
+                        auto tmp = root->right;
+                        root->right = root->right->right;
+                        root->key_value = tmp->key_value;
+                        root->color = tmp->color;
+                        delete tmp;
+                    } else {
+                        auto tmp = root->right->left;
+                        while(tmp->left != nullptr) tmp = tmp->left;
+                        root->key-value = tmp->key_value;
+                        root->color = tmp->color;
+                        RBTree pp(tmp);
+                        pp.remove(tmp->Key());
+                    }
+                }
+            }
+        }
+
+        
+    };
 }
 
 #endif
