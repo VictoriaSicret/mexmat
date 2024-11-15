@@ -3,7 +3,11 @@
 using namespace InFaceLIST;
 int main(void) {
     InFaceList interface;
-    interface.start();
-
+    try{
+        interface.start();
+    } catch (Except& excp){
+        std::cout << excp.what()<< std::endl;
+        return -1;
+    }
     return 0;
 }

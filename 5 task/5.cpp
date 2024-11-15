@@ -16,10 +16,10 @@ namespace InFaceLIST {
 
 bool InFaceList::action (void) {
     size_t act = 0, n = 0, m = 0, way = 0, order = 0, pos = 0, func = 0; List<std::string> list; std::string word;
-    std::cout << "\nChoose action:\n1)Push\n2)Pop\n3)Clear\n4)Link\n5)Sort" << std::endl;
+    std::cout << "\nChoose action:\n1)Push\n2)Pop\n3)Clear\n4)Link\n5)Sort\n6)Word with pointer" << std::endl;
     std::cin >> act;
             
-    if (act != 1 && act != 2 && act != 3 && act != 4 && act != 5) return true;
+    if (act != 1 && act != 2 && act != 3 && act != 4 && act != 5 && act != 6) return true;
     
     std::cout << "\nChoose number" << ((act == 4) ? "s" : "") << " of lists:" << std::endl;
     std::cin >> n;
@@ -30,7 +30,10 @@ bool InFaceList::action (void) {
         if (m >= num) return true;
     }
 
-    if (act == 3) {
+    if (act == 6) {
+        ListInFace<std::string> tmp(&vars[n]);
+        tmp.go();
+    } else if (act == 3) {
         vars[n].clear();
     } else {
         std::cout << "\n1)Print\n2)Save\n3)Print and save" << std::endl;

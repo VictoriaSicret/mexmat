@@ -2,13 +2,20 @@
 #define LISTOFALL
 
 #include <iostream>
+#include <chrono>
 #include "EXCEPT.h"
 
 namespace LIST {
+    using Time = std::chrono::time_point<std::chrono::high_resolution_clock>;
+    using Diff = std::chrono::milliseconds;
+
     using namespace EXCEPT;
 	template <typename T>
 	class List;
-    
+
+    template <typename T>
+    class ListInFace;
+
     template <typename T>
     T generateType (void);
 
@@ -18,9 +25,12 @@ namespace LIST {
 	std::istream& operator>> (std::istream&, List<T>&);
 	
 	template <typename T>
-	class List {
-		template <typename V>
-		class Node {
+    class List {
+        template <typename K> 
+        friend class ListInFace;
+
+        template <typename V>
+        class Node {
             public:
             
             V mes;
@@ -105,7 +115,7 @@ namespace LIST {
     		    return !(*this == i);
     		}
 			
-		    V operator* (void) const {
+		    V& operator* (void) {
     		    return pos->mes;
     		}
 
@@ -309,6 +319,9 @@ namespace LIST {
     	}
 	    
    		List sort(int (*op)(const T, const T)) {
+
+            Time t1 = std::chrono::high_resolution_clock::now();
+
         	List tmp; bool flag = true;
         	for (auto iter = this->begin(); iter != this->end(); ++iter) {
         	    if (tmp.empty()) {
@@ -328,6 +341,10 @@ namespace LIST {
         	    else flag = true;
 
         	}
+            Time t2 = std::chrono::high_resolution_clock::now();
+            Diff diff = std::chrono::duration_cast<Diff>(t2 - t1);
+            std::cout << "\nTime: "<< diff.count() << " ms" << std::endl;
+            
         	return tmp;
     	}
         
@@ -360,10 +377,9 @@ namespace LIST {
 			return std::string("List");
 		}
 
-		void generate(void) {
+		void generate(size_t num) {
             this->clear();
 
-            size_t num = rand()%50 +1;
             for (size_t i = 0; i < num; ++i) {
                 this->pushBack(generateType<T>());
             }
@@ -394,6 +410,109 @@ namespace LIST {
 
         return is;
     }
+
+    template <typename T>
+    std::ostream& operator<< (std::ostream&, const ListInFace<T>&);
+
+    template <typename T>
+    class ListInFace {
+        List<T>* list;
+        typename List<T>::iterator<T> pos;
+
+        public:
+
+        ListInFace(List<T>* ls) {
+            list = ls;
+            pos = ls->begin();
+        }
+
+        ~ListInFace(void) {
+            list = nullptr;
+        }
+
+        void begin(void) {
+            pos = list->begin();
+        }
+
+        void end(void) {
+            pos = list->begin();
+            pos = pos + (list->length()-1);
+        }
+        
+        template <typename K>
+        friend std::ostream& operator<< (std::ostream& os, const ListInFace<K>& inface);
+
+        void operator++ (void) {
+            if (pos.pos->next == nullptr) throw Except("go out of range");
+            ++pos;
+        }
+
+        void operator-- (void) {
+            if (pos.pos->last == nullptr) throw Except("go out of range");
+            --pos;
+        }
+
+        size_t Index(void) {
+            return pos.Index();
+        }
+
+        T& operator*(void) {
+            return *pos;
+        }
+
+        void go(void) {
+            size_t act = 0, way = 0, i = 0;
+            while (true) {
+                std::cout << "\nChoose:\n1)Move pointer\n2)Change by pointer\n3)get index\n4)Print list" << std::endl;
+                std::cin >> act;
+                if (act != 1 && act != 2 && act != 3 && act != 4) break;
+
+                if (act == 1) {
+                    std::cout <<"\nmove to:\n1)begin\n2)end\n3)next\n4)previos\n5)enter index" << std::endl;
+                    std::cin >> way;
+                    if (way != 1 && way != 2 && way != 3 && way != 4 && way != 5) break;
+                    
+                    if (way == 1) this->begin();
+                    else if (way == 2) this->end();
+                    else if (way == 3) ++(*this);
+                    else if (way == 4) --(*this);
+                    else {
+                        std::cout <<"\nEnter index:" << std::endl;
+                        std::cin >> i;
+                        if (i >= list->length()) break;
+                        this->begin();
+                        for (size_t k = 0; k < i; ++k) ++(*this);
+                    }
+                } else if (act == 2) {
+                    std::cout << "\nOld value: " << *(*this)<< std::endl;
+                    std::cout <<"\nEnter new value:" << std::endl;
+                    std::cin >> *(*this);
+                } else if (act == 3) {
+                    std::cout << "\nIndex = " <<this->Index() << std::endl;
+                } else {
+                    std::cout << *this << std::endl;
+                }
+
+            }
+        }
+
+    };
+        template <typename T>
+        std::ostream& operator<< (std::ostream& os, const ListInFace<T>& inface) {
+            if (inface.list->empty()) return os << "\n";
+
+            for (auto iter = inface.list->begin(); iter != inface.list->end(); ++iter) {
+                if (iter == inface.pos) {
+                    os << *iter <<"*\n";
+                } else {
+                    os << *iter <<"\n";
+                }
+            }
+
+            return os;
+        }
+
 }
+
 
 #endif
