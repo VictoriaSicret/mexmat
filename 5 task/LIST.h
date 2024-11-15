@@ -14,9 +14,6 @@ namespace LIST {
 	class List;
 
     template <typename T>
-    class ListInFace;
-
-    template <typename T>
     T generateType (void);
 
 	template <typename T>
@@ -366,11 +363,11 @@ namespace LIST {
     	}
 
     	iterator<T> begin(void)  const{
-    	    return iterator(this, head, 0);
+    	    return iterator<T>(this, head, 0);
     	}
 
     	iterator<T> end(void) const {
-    	    return iterator(this, back->next, size);
+    	    return iterator<T>(this, back->next, size);
     	}
 
 		static std::string name (void) {
@@ -385,7 +382,10 @@ namespace LIST {
             }
         }
     };
-    
+
+    template <typename K>
+    class ListInFace;
+
 	template <typename T>
     std::ostream& operator<< (std::ostream& os, const List<T>& list) {
         if (list.empty()) return os << "\n";

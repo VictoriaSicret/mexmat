@@ -31,7 +31,7 @@ namespace INTERFACE {
 			vars[0] = curr;
 		}
 
-		~InFace (void) {
+		virtual ~InFace (void) {
 			delete[] vars;
 		}
 
