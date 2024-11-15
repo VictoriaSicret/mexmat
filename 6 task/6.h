@@ -52,7 +52,7 @@ namespace RBTREE {
 
             public:
 
-            pair<T, L> key_value;
+            T key; L value;
             COLOR color;
             node* parent;
             node* left;
@@ -64,7 +64,7 @@ namespace RBTREE {
             null(T(), L(), BLACK);
 
             node(T k = T(), L val = L(), COLOR c = RED): {
-                key_value = pair<T, L>(k, val);
+                key = k; value = val;
                 color = c;
                 parent = &null;
                 left = &null;
@@ -78,7 +78,7 @@ namespace RBTREE {
             }
 
             node& operator= (const node& n) {
-                key_value = n.key_value;
+                key = n.key; value = n.value;
                 color = n.color;
                 parent = n.parent;
                 left = n.left;
@@ -86,11 +86,11 @@ namespace RBTREE {
             }
 
             T& Key(void) const{
-                return key_value.first();
+                return key;
             }
 
             L& Value(void) const {
-                return key_value.second();
+                return value;
             }
 
         };
@@ -100,9 +100,9 @@ namespace RBTREE {
 
         private:
 
-        node<K, V>* newNode(pair<K, V>& p) {
+        node<K, V>* newNode(const K& key, const V& value) {
             ++num;
-            node<V, K>* res = new node<K, V>(p.first, p.second);
+            node<V, K>* res = new node<K, V>(key, value);
             return res;
         }
 
@@ -134,22 +134,73 @@ namespace RBTREE {
             a->right = med;
             b->parent = a->parent;
             a->parent = b;
+            return b;
         }
 
         node<K, V>* rotateR(node<K, V>* n) {
-            auto b = n->left;
-            b->parent = n->parent;
-            if (n->parent != nullptr) {
-                (n->parent->left == n) ? n->parent->left = b : n->parent->right = b;
+            auto b = a->left;
+            auto med = b->right; 
+            b->right = a;
+            a->left = med;
+            b->parent = a->parent;
+            a->parent = b;
+            return b;
+        }
+
+        void balanceInsert(node<K, V>** n) {
+            node<K, V>* node = *n;
+            if (node->color == RED) return;
+
+            node<K, V>* l = node->left, r = node->right;
+            if (l->color == RED) {
+                if (l->right->color == RED) l = node->left = rotateL(l);
+                node<K, V> ll = l->left;
+                if (ll->color == RED) {
+                    node->color = RED;
+                    l->color = BLACK;
+                    if (r->color == RED) {
+                        ll->color = RED;
+                        r->color = BLACK;
+                        return;
+                    }
+
+                    *root = rotateR(node);
+                    return;
+                }
             }
 
-            n->left = b->right;
-            if (b->right != nullptr) b->right->parent = n;
+            if (r->color == RED) {
+                if (r->left->color == RED) r = node->right = rotateR(r);
+                node<K, V> rr = r->right;
+                if (rr->color == RED) {
+                    node->color = RED;
+                    r->color = BLACK;
+                    if (l->color == RED) {
+                        rr->color = RED;
+                        l->color = BLACK;
+                        return;
+                    }
 
-            n->parent = b;
-            b->right = n;
+                    *root = rotateL(node);
+                    return;
+                }
+            }
+        }
 
-}
+        bool insert(const K& key, const V& value, node<K, V>** root) {
+            node<K, V>* node = *root;
+            if (node == &node::null) *root = newNode(key, value);
+            else {
+                if (key == node->key) {
+                    node->value = value;
+                    return true;
+                }
+                if (insert(key, value, key < node->key ? &node->left : &node->right)) return true;
+                balanceInsert(root);
+            }
+
+            return false;
+        }
 
         public:
 
@@ -180,16 +231,16 @@ namespace RBTREE {
 
         bool find(const K& key, V& value) {
             if (this->empty) return false;
-            if (root.Key() == key) {
-                value = root.Value();
-                return true;
-            } else if (root.Key() < key) {
-                RBTree tmp(root->left);
-                return tmp->find(key, value);
-            } else {
-                RBTree tmp(root->right);
-                return tmp->find(key, value);
+            node<K, V>* n = root;
+            while (n != &node::null) {
+                if (n->Key() == key) {
+                    value = n->Value();
+                    return true;
+                }
+                n = (n->Key() < key) ? n->left : n->right;
             }
+
+            return false;
         }
 
         V& operator[] (const K& key) {
@@ -198,19 +249,9 @@ namespace RBTREE {
             else throw Except("invalid key");
         }
 
-        void insert(const K& key, const V& value, const node<K, V>* old = &node::null) {
-            if (this->empty()) {
-                root = new node<K, V>(key, value);
-                root->parent = old;
-            } else if (root->Key() == key) {
-                root->Value() = value;
-            } else if (root->Key() < key) {
-                RBTree tmp(root->left);
-                tmp.insert(key, value, root);
-            } else {
-                RBTree tmp (root->right);
-                tmp.insert(key, value, root);
-            }
+        void insert(const K& key, const V& value) {
+            insert(key, value, &root);
+            root->color = BLACK;
         }
 
         void remove(const K& key) {
