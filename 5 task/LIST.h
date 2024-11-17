@@ -271,6 +271,23 @@ namespace LIST {
         	iter.pos->last = block;
         	size++;
     	}
+
+        void pushIn (iterator<T> iter, const T text) {
+            if (iter.Index() == 0) {
+                this->pushHead(text);
+                return;
+            }
+            if (iter.Index() == size) {
+                this->pushBack(text);
+                return;
+            }
+            auto block = new Node<T>(text);
+            iter.pos->last->next = block;
+            block->next = iter.pos;
+            block->last = iter.pos->last;
+            iter.pos->last = block;
+            size++;
+        }
 		 
         void popIn(const size_t k) {
         	if (k > size) throw Except("out of range");
@@ -288,7 +305,23 @@ namespace LIST {
         	iter.pos->next->last = iter.pos->last;
         	delete iter.pos;
         	size--;
-    	}     
+    	}
+
+        void popIn(iterator<T> iter) {
+            if (iter.Index() == 0) {
+                this->popHead();
+                return;
+            }
+            if (iter.Index() == size) {
+                this->popBack();
+                return;
+            }
+
+            iter.pos->last->next = iter.pos->next;
+            iter.pos->next->last = iter.pos->last;
+            delete iter.pos;
+            size--;
+        }
 
         bool empty(void) const {
         	return size == 0;
@@ -329,7 +362,7 @@ namespace LIST {
     	        for (auto it = tmp.begin(); it != tmp.end(); ++it) {
     	            if (op(*iter, *it) == 1) continue;
     	            else {
-    	                tmp.pushIn(it.Index(), *iter);
+    	                tmp.pushIn(it, *iter);
     	                flag = false;
     	                break;
         	        }
