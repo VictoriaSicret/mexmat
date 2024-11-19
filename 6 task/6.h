@@ -93,6 +93,18 @@ namespace RBTREE {
                 return value;
             }
 
+            node* brother(void) {
+                return (n.parent->left == &n) ? n.parent->right : n.parent->left;
+            }
+
+            node* grandparent(void) {
+                return n.parent->parent;
+            }
+
+            node* uncle(void) {
+                return n.parent->brother();
+            }
+
         };
 
         node<V, K>* root;
@@ -118,15 +130,6 @@ namespace RBTREE {
             delNode(n);
         }
 
-        node<K, V>* grandparent(const node<K, V>* n) {
-            return n->parent->parent;
-        }
-
-        node<K, V>* uncle(const node<K, V>* n) {
-            auto grand = this->grandparent(n);
-            return (grand->left == n) ? grand->right : grand->left;
-        }
-
         node<K, V>* rotateL(node<K, V>* a) {
             auto b = a->right;
             auto med = b->left; 
@@ -147,44 +150,44 @@ namespace RBTREE {
             return b;
         }
 
-        void balanceInsert(node<K, V>** n) {
-            node<K, V>* node = *n;
-            if (node->color == RED) return;
+        void insert_case1(node<K, V>* n);
+        void insert_case2(node<K, V>* n);
+        void insert_case3(node<K, V>* n);
+        void insert_case4(node<K, V>* n);
+        void insert_case5(node<K, V>* n);
 
-            node<K, V>* l = node->left, r = node->right;
-            if (l->color == RED) {
-                if (l->right->color == RED) l = node->left = rotateL(l);
-                node<K, V> ll = l->left;
-                if (ll->color == RED) {
-                    node->color = RED;
-                    l->color = BLACK;
-                    if (r->color == RED) {
-                        ll->color = RED;
-                        r->color = BLACK;
-                        return;
-                    }
+        void insert_case1(node<K, V>* n) {
+            if (n->parent == null) n->color = BLACK;
+            else insert_case2(n);
+        }
 
-                    *root = rotateR(node);
-                    return;
-                }
-            }
+        void insert_case2(node<K, V>* n) {
+            if (n->parent->color == BLACK) return;
+            else insert_case3(n);
+        }
 
-            if (r->color == RED) {
-                if (r->left->color == RED) r = node->right = rotateR(r);
-                node<K, V> rr = r->right;
-                if (rr->color == RED) {
-                    node->color = RED;
-                    r->color = BLACK;
-                    if (l->color == RED) {
-                        rr->color = RED;
-                        l->color = BLACK;
-                        return;
-                    }
+        void insert_case3(node<K, V>* n) {
+            node<K, V>* u = n->uncle(), g = n->grandparent();
+            if (u != null && u->color == RED) {
+                n->parent->color = BLACK;
+                u->color = BLACK;
+                g->color = RED;
+                insert_case1(g);
+            } else insert_case4(n);
+        }
 
-                    *root = rotateL(node);
-                    return;
-                }
-            }
+        void insert_case4(node<K, V>* n) {
+            node<K< V>* g = n->grandparent();
+            if (n->parent->left == n && g->right == n->parent) n = rotateR(n->parent)->right;
+            else if (n->parent->right == n && g->left == n->parent) n = rotateL(n->parent)->left;
+            insert_case5(n);
+        }
+
+        void insert_case5(node<K, V>* n) {
+            node<K, V>* g = n->grandparent();
+            g->color = RED; n->parent->color = BLACK;
+            if (g->left == n->parent) rotateR(n->parent);
+            else rotateL(n->parent);
         }
 
         bool insert(const K& key, const V& value, node<K, V>** root) {
@@ -196,9 +199,86 @@ namespace RBTREE {
                     return true;
                 }
                 if (insert(key, value, key < node->key ? &node->left : &node->right)) return true;
-                balanceInsert(root);
+                insert_case1(root);
             }
 
+            return false;
+        }
+
+        
+        bool balanceRemoveL(node<K, V>** root) {
+            node<K, V>* node = *root;
+            node<K, V>* l = node->left; node<K, V>* r = node->right;
+            if (l->color == RED) {
+                l->color = BLACK;
+                return false;
+            }
+
+            if (r->color == RED) {
+                node->color = RED;
+                r->color = BLACK;
+                node = *root = rotateR(node);
+                if (balanceRemoveL(&node->left)) node->left->color = BLACK;
+                return false;
+            }
+
+            node<K, V>* rl = r->left; node<K, V>* rr = r->right;
+
+            if(rl->color == BLACK && rr->color == BLACK) {
+                r->color = RED;
+                return true;
+            }
+
+            if(rl->color == RED) {
+                r->color = RED;
+                rl->color = BLACK;
+                r = node->right = rotateL(r);
+                rr = r->right;
+            }
+
+            if (rr->color == RED) {
+                r->color = node->color;
+                rr->color = node->color = BLACK;
+                *root = rotateR(node);
+            }
+            return false;
+        }
+
+        bool balanceRemoveR(node<K, V>** root) {
+            node<K, V>* node = *root;
+            node<K, V>* l = node->left; node<K, V>* r = node->right;
+            if (r->color == RED) {
+                r->color = BLACK;
+                return false;
+            }
+
+            if (l->color == RED) {
+                node->color = RED;
+                l->color = BLACK;
+                node = *root = rotateL(node);
+                if (balanceRemoveR(&node->right)) node->right->color = BLACK;
+                return false;
+            }
+
+            node<K, V>* lr = l->right; node<K, V>* ll = l->left;
+
+            if(lr->color == BLACK && ll->color == BLACK) {
+                l->color = RED;
+                return true;
+            }
+
+            if(lr->color == RED) {
+                l->color = RED;
+                lr->color = BLACK;
+                l = node->left = rotateR(l);
+                ll = l->left;
+            }
+
+            if (ll->color == RED) {
+                l->color = node->color;
+                ll->color = node->color = BLACK;
+                *root = rotateL(node);
+            }
             return false;
         }
 
@@ -230,7 +310,6 @@ namespace RBTREE {
         }
 
         bool find(const K& key, V& value) {
-            if (this->empty) return false;
             node<K, V>* n = root;
             while (n != &node::null) {
                 if (n->Key() == key) {
