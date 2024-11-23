@@ -2,6 +2,7 @@
 #define LIB6
 
 #include "EXCEPT.h"
+#include <iostream>
 
 namespace PAIR {
     template <typename T, typename K>
@@ -32,10 +33,10 @@ namespace PAIR {
             return First;
         }
 
-        V& second(void) {
+        K& second(void) {
             return Second;
         }
-    }
+    };
 }
 
 namespace RBTREE {
@@ -47,23 +48,18 @@ namespace RBTREE {
     template <typename K, typename V>
     class RBTree {
 
-        template <typename T, typename L>
         class node {
 
             public:
 
-            T key; L value;
+            K key; V value;
             COLOR color;
             node* parent;
             node* left;
             node* right;
-
             static node null;
-            node(T, L, COLOR);
 
-            null(T(), L(), BLACK);
-
-            node(T k = T(), L val = L(), COLOR c = RED): {
+            node(K k = K(), V val = V(), COLOR c = RED) {
                 key = k; value = val;
                 color = c;
                 parent = &null;
@@ -85,52 +81,61 @@ namespace RBTREE {
                 right = n.right;
             }
 
-            T& Key(void) const{
+            const K& Key(void) const{
                 return key;
             }
 
-            L& Value(void) const {
+            const V& Value(void) const {
                 return value;
             }
 
             node* brother(void) {
-                return (n.parent->left == &n) ? n.parent->right : n.parent->left;
+                return (parent->left == this) ? parent->right : parent->left;
             }
 
             node* grandparent(void) {
-                return n.parent->parent;
+                return parent->parent;
             }
 
             node* uncle(void) {
-                return n.parent->brother();
+                return parent->brother();
+            }
+            
+            friend std::ostream& operator<< (std::ostream& os, const node& n) {
+                return os << "\nKey: " << n->key << "\nValue: " << n->value << "\nColor: " << (n->color == RED) ? "RED\n" : "BLACK\n";
             }
 
+            friend std::istream& operator>> (std::istream& is, node& n) {
+                is >> n->key >>"\n">> n->value;
+                if (!is.good()) throw Except("wrong input data");
+                return is;
+            }
         };
 
-        node<V, K>* root;
+        node* root;
         size_t num;
 
         private:
 
-        node<K, V>* newNode(const K& key, const V& value) {
+        node* newNode(const K& key, const V& value) {
             ++num;
-            node<V, K>* res = new node<K, V>(key, value);
+            node* res = new node(key, value);
             return res;
         }
 
-        void delNode(node<K, V>* n) {
+        void delNode(node** n) {
             --num;
-            delete n;
+            delete *n;
         }
 
-        void clear(node<K, V>* n) {
-            if (n == &node::null) return;
-            clear(n->left);
-            clear(n->right);
+        void clear(node** n) {
+            if (*n == &node::null) return;
+            clear(&(*n)->left);
+            clear(&(*n)->right);
             delNode(n);
         }
 
-        node<K, V>* rotateL(node<K, V>* a) {
+        node* rotateL(node* a) {
             auto b = a->right;
             auto med = b->left; 
             b->left = a;
@@ -140,7 +145,7 @@ namespace RBTREE {
             return b;
         }
 
-        node<K, V>* rotateR(node<K, V>* n) {
+        node* rotateR(node* a) {
             auto b = a->left;
             auto med = b->right; 
             b->right = a;
@@ -149,26 +154,26 @@ namespace RBTREE {
             a->parent = b;
             return b;
         }
-
+/*
         void insert_case1(node<K, V>* n);
         void insert_case2(node<K, V>* n);
         void insert_case3(node<K, V>* n);
         void insert_case4(node<K, V>* n);
         void insert_case5(node<K, V>* n);
-
-        void insert_case1(node<K, V>* n) {
-            if (n->parent == null) n->color = BLACK;
+*/
+        void insert_case1(node* n) {
+            if (n->parent == &node::null) n->color = BLACK;
             else insert_case2(n);
         }
 
-        void insert_case2(node<K, V>* n) {
+        void insert_case2(node* n) {
             if (n->parent->color == BLACK) return;
             else insert_case3(n);
         }
 
-        void insert_case3(node<K, V>* n) {
-            node<K, V>* u = n->uncle(), g = n->grandparent();
-            if (u != null && u->color == RED) {
+        void insert_case3(node* n) {
+            node* u = n->uncle(), *g = n->grandparent();
+            if (u != &node::null && u->color == RED) {
                 n->parent->color = BLACK;
                 u->color = BLACK;
                 g->color = RED;
@@ -176,66 +181,63 @@ namespace RBTREE {
             } else insert_case4(n);
         }
 
-        void insert_case4(node<K, V>* n) {
-            node<K< V>* g = n->grandparent();
+        void insert_case4(node* n) {
+            node* g = n->grandparent();
             if (n->parent->left == n && g->right == n->parent) n = rotateR(n->parent)->right;
             else if (n->parent->right == n && g->left == n->parent) n = rotateL(n->parent)->left;
             insert_case5(n);
         }
 
-        void insert_case5(node<K, V>* n) {
-            node<K, V>* g = n->grandparent();
+        void insert_case5(node* n) {
+            node* g = n->grandparent();
             g->color = RED; n->parent->color = BLACK;
             if (g->left == n->parent) rotateR(n->parent);
             else rotateL(n->parent);
         }
 
-        bool insert(const K& key, const V& value, node<K, V>** root) {
-            node<K, V>* node = *root;
-            if (node == &node::null) *root = newNode(key, value);
+        void insert(const K& key, const V& value, node** root) {
+            node* n = *root;
+            if (n == &node::null) *root = newNode(key, value);
             else {
-                if (key == node->key) {
-                    node->value = value;
-                    return true;
-                }
-                if (insert(key, value, key < node->key ? &node->left : &node->right)) return true;
-                insert_case1(root);
+                if (key == n->key) n->value = value;
+                else if (key < n->key) insert(key, value, &n->left);
+                else insert(key, value, &n->right);
             }
-
-            return false;
+            insert_case1(n);
         }
-
+/*
         void del_case1(node<K, V>* n);
         void del_case2(node<K, V>* n);
         void del_case3(node<K, V>* n);
         void del_case4(node<K, V>* n);
         void del_case5(node<K, V>* n);
         void del_case6(node<K, V>* n);
-
-        void replace(node<K,V>* n, node<K, V>* child) {
+*/
+        void replace(node* n, node* child) {
             child->parent = n->parent;
             if (n->parent->left == n) n->parent->left = child;
             else n->parent->right = child;
         }
 
-        void delChild(node<K, V>* n) {
-            node<K, V>* child = (n->right == &node::null) ? n->left : n->right;
+        void delChild(node** no) {
+            node* n = *no;
+            node* child = (n->right == &node::null) ? n->left : n->right;
             replace(n, child);
             if (n->color == BLACK) {
                 if (child->color == RED) child->color = BLACK;
                 else del_case1(child);
             }
-            delNode(n);
+            delNode(no);
         }
 
-        void del_case1(node<K, V>* n) {
+        void del_case1(node* n) {
             if (n->parent != &node::null) {
                 del_case2(n);
             }
         }
 
-        void del_case2(node<K, V>* n) {
-            node<K, V>* b = n->brother();
+        void del_case2(node* n) {
+            node* b = n->brother();
             if (b->color == RED) {
                 n->parent->color = RED;
                 b->color = BLACK;
@@ -245,8 +247,8 @@ namespace RBTREE {
             del_case3(n);
         }
 
-        void del_case3(node<K, V>* n) {
-            node<K, V>* b = n->brother();
+        void del_case3(node* n) {
+            node* b = n->brother();
             if (n->parent->color == BLACK && b->color == BLACK && b->left->color == BLACK && b->right->color == BLACK) {
                 b->color = RED;
                 del_case1(n->parent);
@@ -254,16 +256,16 @@ namespace RBTREE {
             else del_case4(n);
         }
 
-        void del_case4(node<K, V>* n) {
-            node<K, V>* b = n->brother();
+        void del_case4(node* n) {
+            node* b = n->brother();
             if (n->parent->color == RED && b->color == BLACK && b->left->color == BLACK && b->right->color == BLACK) {
                 b->color = RED;
                 n->parent->color = BLACK;
             } else del_case5(n);
         }
 
-        void del_case5(node<K, V>* n) {
-            node<K, V>* b = n->brother();
+        void del_case5(node* n) {
+            node* b = n->brother();
             if (n->parent->left == n && b->left->color == RED && b->right->color == BLACK) {
                 b->color = RED;
                 b->left->color = BLACK;
@@ -276,8 +278,8 @@ namespace RBTREE {
             del_case6(n);
         }
 
-        void del_case6(node<K, V>* n) {
-            node<K, V>* b = n->brother();
+        void del_case6(node* n) {
+            node* b = n->brother();
             b->color = n->parent->color;
             n->parent->color = BLACK;
 
@@ -290,8 +292,8 @@ namespace RBTREE {
             }
         }
 
-        node<K, V>* getMin(const node<K, V>* n) {
-            node<K, V>* res = n;
+        node* getMin(node* n) {
+            node *res; res = n;
             if (res->left == &node::null) {
                 res = res->right;
                 while (res->left != &node::null) res = res->left;
@@ -302,15 +304,15 @@ namespace RBTREE {
             return res;
         }
 
-        void remove(node<K, V>** root, const K& key) {
-            node<K, V>* n = *root;
+        void remove(node** root, const K& key) {
+            node* n = *root;
             if (n->Key() == key) {
                 if (n->left != &node::null && n->right != &node::null) {
-                    node<K, V>* m = getMin(n);
+                    node* m = getMin(n);
                     n->key = m->key; n->value = m->value;
-                    delChild(m);
+                    delChild(&m);
                 } else {
-                    delChild(n);
+                    delChild(root);
                 }
 
             } else if (n->Key() < key) {
@@ -325,10 +327,11 @@ namespace RBTREE {
         public:
 
         RBTree(void) {
-            root = &node::null;
+            num = 0;
+            root = &(node::null);
         }
 
-        RBTree(node<K, V>* n) {
+        RBTree(node* n) {
             root = n;
         }
 
@@ -341,7 +344,7 @@ namespace RBTREE {
         }
 
         void clear(void) {
-            clear(root);
+            clear(&root);
             root = &node::null;
         }
 
@@ -350,22 +353,26 @@ namespace RBTREE {
         }
 
         bool find(const K& key, V& value) {
-            node<K, V>* n = root;
+            node* n = root;
             while (n != &node::null) {
                 if (n->Key() == key) {
-                    value = n->Value();
+                    value = n->value;
                     return true;
                 }
                 n = (n->Key() < key) ? n->left : n->right;
             }
-
             return false;
         }
 
         V& operator[] (const K& key) {
-            V tmp;
-            if (find(key, tmp)) return tmp;
-            else throw Except("invalid key");
+            node* n = root;
+            while (n != &node::null) {
+                if (n->Key() == key) {
+                    return n->value;
+                }
+                n = (n->Key() < key) ? n->left : n->right;
+            }
+            throw Except("invalid key");
         }
 
         void insert(const K& key, const V& value) {
@@ -377,6 +384,8 @@ namespace RBTREE {
             remove(&root, key);
         }
     };
+    template <typename K, typename V>
+    typename RBTree<K, V>::node RBTree<K, V>::node::null(K(), V(), BLACK);
 }
 
 #endif
