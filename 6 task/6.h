@@ -36,7 +36,7 @@ namespace PAIR {
             return Second;
         }
     }
-}`
+}
 
 namespace RBTREE {
     enum COLOR {RED, BLACK};
@@ -205,81 +205,121 @@ namespace RBTREE {
             return false;
         }
 
-        
-        bool balanceRemoveL(node<K, V>** root) {
-            node<K, V>* node = *root;
-            node<K, V>* l = node->left; node<K, V>* r = node->right;
-            if (l->color == RED) {
-                l->color = BLACK;
-                return false;
-            }
+        void del_case1(node<K, V>* n);
+        void del_case2(node<K, V>* n);
+        void del_case3(node<K, V>* n);
+        void del_case4(node<K, V>* n);
+        void del_case5(node<K, V>* n);
+        void del_case6(node<K, V>* n);
 
-            if (r->color == RED) {
-                node->color = RED;
-                r->color = BLACK;
-                node = *root = rotateR(node);
-                if (balanceRemoveL(&node->left)) node->left->color = BLACK;
-                return false;
-            }
-
-            node<K, V>* rl = r->left; node<K, V>* rr = r->right;
-
-            if(rl->color == BLACK && rr->color == BLACK) {
-                r->color = RED;
-                return true;
-            }
-
-            if(rl->color == RED) {
-                r->color = RED;
-                rl->color = BLACK;
-                r = node->right = rotateL(r);
-                rr = r->right;
-            }
-
-            if (rr->color == RED) {
-                r->color = node->color;
-                rr->color = node->color = BLACK;
-                *root = rotateR(node);
-            }
-            return false;
+        void replace(node<K,V>* n, node<K, V>* child) {
+            child->parent = n->parent;
+            if (n->parent->left == n) n->parent->left = child;
+            else n->parent->right = child;
         }
 
-        bool balanceRemoveR(node<K, V>** root) {
-            node<K, V>* node = *root;
-            node<K, V>* l = node->left; node<K, V>* r = node->right;
-            if (r->color == RED) {
-                r->color = BLACK;
-                return false;
+        void delChild(node<K, V>* n) {
+            node<K, V>* child = (n->right == &node::null) ? n->left : n->right;
+            replace(n, child);
+            if (n->color == BLACK) {
+                if (child->color == RED) child->color = BLACK;
+                else del_case1(child);
             }
+            delNode(n);
+        }
 
-            if (l->color == RED) {
-                node->color = RED;
-                l->color = BLACK;
-                node = *root = rotateL(node);
-                if (balanceRemoveR(&node->right)) node->right->color = BLACK;
-                return false;
+        void del_case1(node<K, V>* n) {
+            if (n->parent != &node::null) {
+                del_case2(n);
             }
+        }
 
-            node<K, V>* lr = l->right; node<K, V>* ll = l->left;
-
-            if(lr->color == BLACK && ll->color == BLACK) {
-                l->color = RED;
-                return true;
+        void del_case2(node<K, V>* n) {
+            node<K, V>* b = n->brother();
+            if (b->color == RED) {
+                n->parent->color = RED;
+                b->color = BLACK;
+                if (n->parent->left == n) rotateL(n->parent);
+                else rotateR(n->parent);
             }
+            del_case3(n);
+        }
 
-            if(lr->color == RED) {
-                l->color = RED;
-                lr->color = BLACK;
-                l = node->left = rotateR(l);
-                ll = l->left;
+        void del_case3(node<K, V>* n) {
+            node<K, V>* b = n->brother();
+            if (n->parent->color == BLACK && b->color == BLACK && b->left->color == BLACK && b->right->color == BLACK) {
+                b->color = RED;
+                del_case1(n->parent);
             }
+            else del_case4(n);
+        }
 
-            if (ll->color == RED) {
-                l->color = node->color;
-                ll->color = node->color = BLACK;
-                *root = rotateL(node);
+        void del_case4(node<K, V>* n) {
+            node<K, V>* b = n->brother();
+            if (n->parent->color == RED && b->color == BLACK && b->left->color == BLACK && b->right->color == BLACK) {
+                b->color = RED;
+                n->parent->color = BLACK;
+            } else del_case5(n);
+        }
+
+        void del_case5(node<K, V>* n) {
+            node<K, V>* b = n->brother();
+            if (n->parent->left == n && b->left->color == RED && b->right->color == BLACK) {
+                b->color = RED;
+                b->left->color = BLACK;
+                rotateR(b);
+            } else if (n->parent->right == n && b->left->color == BLACK && b->right->color == RED) {
+                b->color = RED;
+                b->right->color = BLACK;
+                rotateL(b);
             }
-            return false;
+            del_case6(n);
+        }
+
+        void del_case6(node<K, V>* n) {
+            node<K, V>* b = n->brother();
+            b->color = n->parent->color;
+            n->parent->color = BLACK;
+
+            if (n == n->parent->left) {
+                b->right->color = BLACK;
+                rotateL(n->parent);
+            } else {
+                b->left->color = BLACK;
+                rotateR(n->parent);
+            }
+        }
+
+        node<K, V>* getMin(const node<K, V>* n) {
+            node<K, V>* res = n;
+            if (res->left == &node::null) {
+                res = res->right;
+                while (res->left != &node::null) res = res->left;
+            } else {
+                res = res->left;
+                while (res->right != &node::null) res = res->right;
+            }
+            return res;
+        }
+
+        void remove(node<K, V>** root, const K& key) {
+            node<K, V>* n = *root;
+            if (n->Key() == key) {
+                if (n->left != &node::null && n->right != &node::null) {
+                    node<K, V>* m = getMin(n);
+                    n->key = m->key; n->value = m->value;
+                    delChild(m);
+                } else {
+                    delChild(n);
+                }
+
+            } else if (n->Key() < key) {
+                if (n->left == &node::null) return;
+                remove(&n->left, key);
+            } else {
+                if (n->right == &node::null) return;
+                remove(&n->right, key);
+            }
         }
 
         public:
@@ -334,51 +374,8 @@ namespace RBTREE {
         }
 
         void remove(const K& key) {
-            if (!(this->empty())) {
-                if (root->Key() < key) {
-                    RBTree tmp(root->left);
-                    tmp.remove(key);
-                } else if (root->Key() > key) {
-                    RBTree tmp(root->right);
-                    tmp.remove(key);
-                } else {
-                    if (root->left == nullptr && root->right == nullptr) {
-
-                        if (root->parent == nullptr) {
-                            delete root;
-                            return;
-                        }
-
-                        (root->parent->left == root) ? root->parent->left = nullptr : root->parent->right = nullptr;
-                        delete root;
-
-                    } else if ((root->left != nullptr && root->right == nullptr) || (root->left == nullptr && root->right != nullptr)) {
-
-                        auto tmp = (root->left != nullptr) ? root->left : root->right;
-                        tmp->parent = root->parent;
-                        auto old = root;
-                        root = tmp;
-                        delete old;
-
-                    } else if (root->right->left == nullptr) {
-                        auto tmp = root->right;
-                        root->right = root->right->right;
-                        root->key_value = tmp->key_value;
-                        root->color = tmp->color;
-                        delete tmp;
-                    } else {
-                        auto tmp = root->right->left;
-                        while(tmp->left != nullptr) tmp = tmp->left;
-                        root->key-value = tmp->key_value;
-                        root->color = tmp->color;
-                        RBTree pp(tmp);
-                        pp.remove(tmp->Key());
-                    }
-                }
-            }
+            remove(&root, key);
         }
-
-        
     };
 }
 
