@@ -1,43 +1,8 @@
-#ifndef LIB6
-#define LIB6
+#ifndef RedBlackTree
+#define RedBlackTree
 
 #include "EXCEPT.h"
 #include <iostream>
-
-namespace PAIR {
-    template <typename T, typename K>
-    class pair {
-        T First;
-        K Second;
-        public:
-
-        pair(void) {
-            First = T();
-            Second = K();
-        }
-
-        pair (const T& first): First(first) {
-            Second = K();
-        }
-
-        pair(const T& first, const K& second): First(first), Second(second) {}
-
-        ~pair(void) {}
-
-        pair& operator= (const pair& p) {
-            First = p.First;
-            Second = p.Second;
-        }
-
-        T& first(void) {
-            return First;
-        }
-
-        K& second(void) {
-            return Second;
-        }
-    };
-}
 
 namespace RBTREE {
     enum COLOR {RED, BLACK};
