@@ -60,7 +60,7 @@ namespace RBTREE {
             }
             
             bool operator== (const node& n) const {
-                return (n.key_value == key_value);
+                return (n.key == key) && (n.value == value);
             }
 
             bool operator!= (const node& n) const {
@@ -280,7 +280,7 @@ namespace RBTREE {
 		
 		node* newTree(const node* root) {
             if (root == &node::null) return &node::null;
-            node* newRoot = new node(PairTree<K, V>(root->Key(),root->Value()), root->Color());
+            node* newRoot = new node(root->Key(),root->Value(), root->Color());
             newRoot->left = newTree(root->left); newRoot->right = newTree(root->right);
             newRoot->left->parent = newRoot;
             newRoot->right->parent = newRoot;
@@ -373,7 +373,7 @@ namespace RBTREE {
                 if (n->Key() == key) {
                     return n->value;
                 }
-                n = (n->Key() < key) ? n->left : n->right;
+                n = (n->Key() > key) ? n->left : n->right;
             }
             throw Except("invalid key");
         }
