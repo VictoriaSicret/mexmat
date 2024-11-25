@@ -6,8 +6,6 @@
 
 namespace RBTREE {
     enum COLOR {RED, BLACK};
-
-    using namespace PAIR;
     using namespace EXCEPT;
 
     template <typename K, typename V>
