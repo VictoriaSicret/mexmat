@@ -194,9 +194,7 @@ namespace RBTREE {
         }
 
         void del_case1(node* n) {
-            if (n->parent != &node::null) {
-                del_case2(n);
-            }
+            if (n->parent != &node::null) del_case2(n);
         }
 
         void del_case2(node* n) {
