@@ -176,7 +176,6 @@ namespace LIST {
 
         Node* head;
         Node* back;
-        Node* null;
         size_t size;
 
         public:
@@ -184,9 +183,6 @@ namespace LIST {
         List (void){
             head = nullptr;
             back = nullptr;
-            null = new Node();
-            null->last = back;
-            null->next = head;
             size = 0;
         }
 
@@ -204,7 +200,6 @@ namespace LIST {
                 back->next = nullptr;
                 size--;
             }
-            delete null;
         }
 
         List(const List& ls) {
@@ -221,8 +216,7 @@ namespace LIST {
                 back = back->next;
                 size++;
             }
-            null = new Node();
-            null->next = head; null->last = back;
+            head->last = back; back->next = head;
         }
 
         List(List&& move) {
@@ -232,8 +226,6 @@ namespace LIST {
         	move.head = nullptr;
         	back = move.back;
         	move.back = nullptr;
-            null = move.null;
-            move.null = nullptr;
     	}
     	
         List& operator= (const List& ls) {
@@ -242,7 +234,7 @@ namespace LIST {
         	for (auto iter = ls.begin(); iter != ls.end(); ++iter) {
         	    this->pushBack(*iter);
         	}
-            null->next = head; null->last = back;
+            back->next = head; head->last = back;
         	return *this;
     	}
     	
@@ -255,8 +247,6 @@ namespace LIST {
     	    move.head = nullptr;
     	    back = move.back;
     	    move.back = nullptr;
-	        null = move.null;
-            move.null = nullptr;
    		    return *this;
     	}
 
@@ -264,6 +254,7 @@ namespace LIST {
     	    if (size == 0) {
    		        back = new Node(text);
     	        head = back;
+                head->next = head; head->last = head;
         	    size = 1;
         	    return;
         	}
@@ -271,7 +262,7 @@ namespace LIST {
 			back->next->last = back;
 			back = back->next;
         	size++;
-	        null->next = head; null->last = back;
+	        back->next = head; head->last = back;
 		}
 		
         void popBack(void) {
@@ -281,13 +272,15 @@ namespace LIST {
         	if (size == 1) {
         	    delete back;
         	    back = head = nullptr;
+                size--;
+                return;
         	} else {
         	    back = back->last;
         	    delete back->next;
         	    back->next = nullptr;
         	}
         	size--;
-	        null->next = head; null->last = back;
+	        back->next = head; head->last = back;
     	}
 
         void pushHead(const T text) {
@@ -295,13 +288,14 @@ namespace LIST {
         	    head = new Node(text);
         	    back = head;
         	    size = 1;
+                head->next = head; head->last = head;
         	    return;
         	}
         	head->last = new Node(text);
         	head->last->next = head;
         	head = head->last;
         	size++;
-	        null->next = head; null->last = back;
+	        back->next = head; head->last = back;
     	}
     	
         void popHead(void) {
@@ -309,13 +303,14 @@ namespace LIST {
         	if (size == 1) {
         	    delete back;
         	    back = head = nullptr;
-        	} else {
-        	    head = head->next;
-        	    delete head->last;
-        	    head->last = nullptr;
+                size--;
+                return;
         	}
-        	size--;
-	        null->next = head; null->last = back;
+            head = head->next;
+            delete head->last;
+            head->last = nullptr;
+            size--;
+            back->next = head; head->last = back;
     	}
 
         void pushIn(const size_t k, const T text) {
@@ -336,7 +331,7 @@ namespace LIST {
         	block->last = iter.pos->last;
         	iter.pos->last = block;
         	size++;
-	        null->next = head; null->last = back;
+	        back->next = head; head->last = back;
     	}
 		 
         void pushIn (iterator iter, const T text) {
@@ -354,7 +349,7 @@ namespace LIST {
             block->last = iter.pos->last;
             iter.pos->last = block;
             size++;
-	        null->next = head; null->last = back;
+	        back->next = head; head->last = back;
         }
         
         void popIn(const size_t k) {
@@ -372,7 +367,7 @@ namespace LIST {
         	iter.pos->next->last = iter.pos->last;
         	delete iter.pos;
         	size--;
-	        null->next = head; null->last = back;
+	        back->next = head; head->last = back;
     	}     
 
         void popIn(iterator iter) {
@@ -389,7 +384,7 @@ namespace LIST {
             iter.pos->next->last = iter.pos->last;
             delete iter.pos;
             size--;
-	        null->next = head; null->last = back;
+	        back->next = head; head->last = back;
         }
         
         bool empty(void) const {
@@ -408,7 +403,7 @@ namespace LIST {
     	        res.back = res.back->next;
     	        res.size++;
     	    }
-	        null->next = head; null->last = back;
+	        back->next = head; head->last = back;
     	    return res;
         }
     	
@@ -416,7 +411,6 @@ namespace LIST {
     	    while (size > 0) {
     	        this->popBack();
     	    }
-	        null->next = head; null->last = back;
     	}
 
         iterator begin(void)  const{
@@ -424,7 +418,7 @@ namespace LIST {
         }
 
         iterator end(void) const {
-            return iterator(this, null, size+1);
+            return iterator(this, head, size+1);
         }
 
         riterator rbegin(void) const {
@@ -432,7 +426,7 @@ namespace LIST {
         }
 
         riterator rend(void) const {
-            return riterator(this, null, 0);
+            return riterator(this, back, 0);
         }
 
         bool operator== (const List& l) const {

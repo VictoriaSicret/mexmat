@@ -21,10 +21,6 @@ namespace R2Geometry {
         return Vector(-v.X(), -v.Y());
     }
 
-    double operator*(const Vector& u, const Vector v) {
-        return u.X()*v.X()+u.Y()*v.Y();
-    }
-
     Vector operator*(const Vector& v, const double c) {
         return Vector(c*v.X(), c*v.Y());
     }
@@ -60,5 +56,18 @@ namespace R2Geometry {
     Point RPoint (const Vector& v) {
         return Point(v.X(), v.Y());
     }
-	
+
+    int aroundLine (const Point& p, const Vector& v, const Point& q) {
+        double tmp = v*(q-p);
+        if (tmp > 0) return 1;
+        else if (tmp < 0) return -1;
+        return 0;
+    }
+
+    bool intersectLine (const Point& p1, const Vector& v1, const Point& p2, const Vector& v2, Point& res) {
+        if (v1.unit() == v2.unit()) {res = p1; return true;}
+        double lymbda = (v2.n()*(p2-p1))/(v1*(v2.n()));
+        res = p1+lymbda*v1;
+        return true;
+    }
 }
