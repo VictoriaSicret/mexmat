@@ -1,24 +1,8 @@
 #include "R2Geometry.h"
 
 namespace R2Geometry {
-    Vector operator+ (const Vector& u, const Vector& v) {
-        return Vector(u.X()+v.X(), u.Y()+v.Y());
-	}
-
-    Vector operator- (const Vector& u, const Vector& v) {
-        return Vector(u.X()-v.X(), u.Y()-v.Y());
-    }
-
     Point operator+ (const Vector& v, const Point& p) {
         return Point(v.X()+p.X(), v.Y()+p.Y());
-    }
-
-    Vector operator+(const Vector& v) {
-        return Vector(v.X(), v.Y());
-    }
-
-    Vector operator-(const Vector& v) {
-        return Vector(-v.X(), -v.Y());
     }
 
     Vector operator*(const Vector& v, const double c) {
@@ -58,14 +42,14 @@ namespace R2Geometry {
     }
 
     int aroundLine (const Point& p, const Vector& v, const Point& q) {
-        double tmp = v*(q-p);
+        double tmp = v.n()*(q-p);
         if (tmp > 0) return 1;
         else if (tmp < 0) return -1;
         return 0;
     }
 
     bool intersectLine (const Point& p1, const Vector& v1, const Point& p2, const Vector& v2, Point& res) {
-        if (v1.unit() == v2.unit()) {res = p1; return true;}
+        if (v1.unit() == v2.unit() || v1.unit()+(v2.unit()) == Vector()) {res = p1; return false;}
         double lymbda = (v2.n()*(p2-p1))/(v1*(v2.n()));
         res = p1+lymbda*v1;
         return true;

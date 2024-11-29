@@ -11,11 +11,7 @@ namespace R2Geometry {
     class Point;
     class Vector;
 
-    Vector operator+ (const Vector& u, const Vector& v);
-    Vector operator- (const Vector& u, const Vector& v);
     Point operator+ (const Vector& v, const Point& p);
-    Vector operator+(const Vector& v);
-    Vector operator-(const Vector& v);
 
     Vector operator*(const Vector& v, const double c);
     Vector operator*(const double c, const Vector& v);
