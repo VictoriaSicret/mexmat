@@ -49,7 +49,7 @@ namespace R2Geometry {
     }
 
     bool intersectLine (const Point& p1, const Vector& v1, const Point& p2, const Vector& v2, Point& res) {
-        if (v1.unit() == v2.unit() || v1.unit()+(v2.unit()) == Vector()) {res = p1; return false;}
+        if (fabs(v1*v2.n()) < EPS) {res = p1; return false;}
         double lymbda = (v2.n()*(p2-p1))/(v1*(v2.n()));
         res = p1+lymbda*v1;
         return true;
