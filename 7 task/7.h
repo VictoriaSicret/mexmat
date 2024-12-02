@@ -22,7 +22,7 @@ class polygon {
 
     void add(const Point& x) {vertex.pushBack(x);}
 
-    bool isInPolygon(const Point& p) const;
+    int isInPolygon(const Point& p) const;
     friend std::ostream& operator<< (std::ostream& os, const polygon& p) {
         return os << p.vertex;
     }

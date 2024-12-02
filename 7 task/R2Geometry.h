@@ -4,32 +4,9 @@
 #include <iostream>
 #include <cmath>
 
-#define EPS 1e-12
-
 namespace R2Geometry {
-
-    class Point;
-    class Vector;
-
-    Point operator+ (const Vector& v, const Point& p);
-
-    Vector operator*(const Vector& v, const double c);
-    Vector operator*(const double c, const Vector& v);
-
-    Point operator* (const double c, const Point& p);
-    Point operator* (const Point& p, const double c);
-
-    Vector RVector (const Point& p);
-
-    Point operator+ (const Point& p, const Vector& v);
-    Point operator+ (const Point& p, const Point& q);
-    Vector operator- (const Point& p, const Point& q);
-
-    Point RPoint (const Vector& v);
-
-    int aroundLine (const Point& p, const Vector& v, const Point& q);
-    bool intersectLine (const Point& p1, const Vector& v1, const Point& p2, const Vector& v2, Point& res);
-
+    #define EPS 1e-12
+    
     class Point {
         double x;
         double y;
@@ -72,6 +49,8 @@ namespace R2Geometry {
         const double& Y(void) const {return y;}
         double& Y(void) {return y;}
 
+        Point operator* (const double& c) {return Point(x*c, y*c);}
+        Point operator+ (const Point& p) {return Point(x+p.x, y+p.y);}
         bool operator== (const Point& p) const {return fabs(x-p.x) < EPS && fabs(y-p.y)< EPS;}
 	    bool operator!= (const Point& p) const {return !(*this == p);}
         friend std::ostream& operator<< (std::ostream& os, const Point& p) {
@@ -80,18 +59,14 @@ namespace R2Geometry {
     };
 
     class Vector {
-        double x;
-        double y;
-
+        double x; double y;
         public:
+        Vector(double xx = 0.0, double yy = 0.0): x(xx), y(yy) {}
+        const double& X(void) const {return x;}
+        double& X(void) {return x;}
 
-        Vector(double xx = 0, double yy = 0) {
-            if (fabs(xx) < EPS) x = 0;
-            else x = xx;
-
-            if (fabs(yy) < EPS) y = 0;
-            else y = yy;
-        }
+        const double& Y(void) const {return y;}
+        double& Y(void) {return y;}
 
         Vector(const Vector& v) {
             x = v.x;
@@ -114,12 +89,6 @@ namespace R2Geometry {
             y = v.y; v.y = 0;
             return *this;
         }
-
-        const double& X(void) const{return x;}
-        double& X(void) {return x;}
-
-        const double& Y(void) const{return y;}
-        double& Y(void) {return y;}
 
         Vector operator+ (const Vector& v) const {
             return Vector(x+v.x, y+v.y);
@@ -171,6 +140,15 @@ namespace R2Geometry {
         bool operator!= (const Vector& v) const {return !(*this == v);}
     };
 
+    Vector operator*(const double c, const Vector& v);
+    Point operator* (const double c, const Point& p);
+    Point operator+ (const Point& p, const Vector& v);
+    Point operator+ (const Vector& v, const Point& p);
+    Vector operator- (const Point& p, const Point& q);
+    Vector RVector (const Point& p);
+    Point RPoint (const Vector& v);
+    int aroundLine (const Point& p, const Vector& v, const Point& q);
+    bool intersectLine (const Point& p1, const Vector& v1, const Point& p2, const Vector& v2, Point& res);
 }
 
 #endif
