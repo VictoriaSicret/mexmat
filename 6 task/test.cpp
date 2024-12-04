@@ -1,10 +1,8 @@
-#include "RBTREE.h"
+#include "6.h"
 
-using namespace RBTREE;
+using namespace TReeINTERFACE;
 int main(void) {
-    RBTree<std::string, size_t> tree; size_t x = 0;
-    tree.insert("first", 5); tree.insert("second", x); tree["second"] = 10; tree.insert("third", 15);
-    if(tree.find("second", x)) std::cout << tree["second"] << " " <<x << std::endl;
-    tree.remove("second");
+    TreeInFace inface;
+    inface.start();
     return 0;
 }
