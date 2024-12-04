@@ -2,7 +2,6 @@
 #define RedBlackTree
 
 #include <iostream>
-#include "EXCEPT.h"
 
 namespace RBTREE {
     enum COLOR {RED, BLACK};
@@ -19,9 +18,10 @@ namespace RBTREE {
             node* parent;
             node* left;
             node* right;
+            bool flag;
             static node null;
 
-            node(K k = K(), V val = V(), COLOR c = RED): key(k), value(val), color(c), parent(&null), left(&null), right(&null) {}
+            node(K k = K(), V val = V(), COLOR c = RED): key(k), value(val), color(c), parent(&null), left(&null), right(&null), flag(true) {}
 
             ~node(void) {
                 parent = nullptr;
@@ -31,7 +31,7 @@ namespace RBTREE {
 
             node& operator= (const node& n) {
                 key = n.key; value = n.value;
-                color = n.color;
+                color = n.color; flag = n.flag;
             }
 
             const K& Key(void) const{return key;}
@@ -54,7 +54,6 @@ namespace RBTREE {
 
             friend std::istream& operator>> (std::istream& is, node& n) {
                 is >> n->key >>"\n">> n->value;
-                if (!is.good()) throw EXCEPT::Except("Wrong data");
                 return is;
             }
             
@@ -157,10 +156,10 @@ namespace RBTREE {
                 if (key == n->Key()) n->Value() = value;
                 else if (key < n->Key()) {
                     node *tmp = insert(key, value, n->left);
-                    tmp->parent = n;
+                    tmp->parent = n; n->left = tmp;
                 } else {
                     node *tmp = insert(key, value, n->right);
-                    tmp->parent = n;
+                    tmp->parent = n; n->right = tmp;
                 }
             }
             insert_case1(n);
@@ -187,6 +186,7 @@ namespace RBTREE {
                 if (child->color == RED) child->color = BLACK;
                 else del_case1(child);
             }
+            if (n == root) root = child;
             delNode(n);
         }
 
@@ -378,7 +378,7 @@ namespace RBTREE {
                 }
                 n = (n->Key() > key) ? n->left : n->right;
             }
-            throw EXCEPT::Except("Invalid index");
+            exit(-1);
         }
 
         void insert(const K& key, const V& value) {
@@ -388,11 +388,6 @@ namespace RBTREE {
 
         void remove(const K& key) {
             remove(root, key);
-            std::cout <<"List:      " << &node::null << std::endl;
-            std::cout <<"curr:      " << root << std::endl;
-            std::cout <<"parent:      " << root->parent << std::endl;
-            std::cout <<"left:      " << root->left << std::endl;
-            std::cout <<"right:      " << root->right << std::endl;
         }
         
         friend std::ostream& operator<< (std::ostream& os, const RBTree<K, V>& tree) {
