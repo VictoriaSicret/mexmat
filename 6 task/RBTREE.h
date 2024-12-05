@@ -89,22 +89,30 @@ namespace RBTREE {
         }
 
         node* rotateL(node* a) {
-            auto b = a->right;
-            auto med = b->left; 
+            if (a == &node::null || a->right == &node::null) return a;
+            node* b = a->right;
+            node* med = b->left;
             b->left = a;
             a->right = med;
             b->parent = a->parent;
+            if (b->parent != &node::null) (b->parent->left == a) ? (b->parent->left = b) : (b->parent->right = b);
+            else root = b;
             a->parent = b;
+            if (med != &node::null) med->parent = a;
             return b;
         }
 
         node* rotateR(node* a) {
-            auto b = a->left;
-            auto med = b->right; 
+            if (a == &node::null || a->left == &node::null) return a;
+            node* b = a->left;
+            node* med = b->right;
             b->right = a;
             a->left = med;
             b->parent = a->parent;
+            if (b->parent != &node::null) (b->parent->left == a) ? (b->parent->left = b) : (b->parent->right = b);
+            else root = b;
             a->parent = b;
+            if (med != &node::null) med->parent = a;
             return b;
         }
 /*
@@ -144,25 +152,25 @@ namespace RBTREE {
         void insert_case5(node* n) {
             node* g = n->grandparent();
             g->color = RED; n->parent->color = BLACK;
-            if (g->left == n->parent) rotateR(n->parent);
-            else rotateL(n->parent);
+            if (g->left == n->parent) rotateR(g);
+            else rotateL(g);
         }
 
-        node* insert(const K& key, const V& value, node*& n) {
+        node* insert(const K& key, const V& value, node*& n, int& flag) {
+            if (flag == 0) return n;
             if (n == &node::null) {
                 n = newNode(key, value);
-                return n;
+                --flag;
             } else {
                 if (key == n->Key()) n->Value() = value;
                 else if (key < n->Key()) {
-                    node *tmp = insert(key, value, n->left);
-                    tmp->parent = n; n->left = tmp;
+                    node *tmp = insert(key, value, n->left, flag);
+                    if (flag == 1) {tmp->parent = n; insert_case1(tmp); --flag;}
                 } else {
-                    node *tmp = insert(key, value, n->right);
-                    tmp->parent = n; n->right = tmp;
+                    node *tmp = insert(key, value, n->right, flag);
+                    if (flag == 1) {tmp->parent = n; insert_case1(tmp); --flag;}
                 }
             }
-            insert_case1(n);
             return n;
         }
 /*
@@ -292,7 +300,7 @@ namespace RBTREE {
         
         void add(const node* n) {
             if (n == &node::null) return;
-            insert(n->Key(), n->Value());
+            insert(n->Key(), n->Value(), true);
             add(n->left);
             add(n->right);
         }
@@ -376,7 +384,8 @@ namespace RBTREE {
         }
 
         void insert(const K& key, const V& value) {
-            insert(key, value, root);
+            int f = 2;
+            insert(key, value, root, f);
             root->color = BLACK;
         }
 

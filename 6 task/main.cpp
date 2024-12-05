@@ -1,13 +1,8 @@
-#include "5.h"
+#include "6.h"
 
-using namespace InFaceLIST;
+using namespace TReeINTERFACE;
 int main(void) {
-    InFaceList interface;
-    try{
-        interface.start();
-    } catch (Except& excp){
-        std::cout << excp.what()<< std::endl;
-        return -1;
-    }
+    TreeInFace inface;
+    inface.start();
     return 0;
 }
