@@ -2,6 +2,7 @@
 #define RedBlackTree
 
 #include <iostream>
+#include "EXCEPT.h"
 
 namespace RBTREE {
     enum COLOR {RED, BLACK};
@@ -18,10 +19,9 @@ namespace RBTREE {
             node* parent;
             node* left;
             node* right;
-            bool flag;
             static node null;
 
-            node(K k = K(), V val = V(), COLOR c = RED): key(k), value(val), color(c), parent(&null), left(&null), right(&null), flag(true) {}
+            node(K k = K(), V val = V(), COLOR c = RED): key(k), value(val), color(c), parent(&null), left(&null), right(&null) {}
 
             ~node(void) {
                 parent = nullptr;
@@ -31,7 +31,7 @@ namespace RBTREE {
 
             node& operator= (const node& n) {
                 key = n.key; value = n.value;
-                color = n.color; flag = n.flag;
+                color = n.color;
             }
 
             const K& Key(void) const{return key;}
@@ -49,11 +49,11 @@ namespace RBTREE {
 
             friend std::ostream& operator<< (std::ostream& os, const node& n) {
                 if (&n == &node::null) return os << "\nLIST\n";
-                return os << "\nKey: " << n.Key() << " Value: " << n.Value() << "\n";
+                return os << "Key: " << n.Key() << " Value: " << n.Value() << "    ";
             }
 
             friend std::istream& operator>> (std::istream& is, node& n) {
-                is >> n->key >>"\n">> n->value;
+                is >> n->key >>"\n">> n->value; if (!is.good()) throw EXCEPT::Except("wrong data");
                 return is;
             }
             
@@ -297,18 +297,12 @@ namespace RBTREE {
             add(n->right);
         }
         
-        std::ostream& print(std::ostream& os, const node* n) const {
+        std::ostream& print(std::ostream& os, const node* n, const size_t& k) const {
             if (n == &node::null) return os;
-            print(os, n->left) <<*n;
-            print(os, n->right);
-            return os;
-        }
-        
-        std::ostream& print(std::ostream& os, const node* n, const K& k1, const K& k2) const {
-            if (n == &node::null) return os;
-            if (n->Key() < k1 || n->Key() > k2) return os;
-            print(os, n->left, k1, k2) << *n;
-            print(os, n->right, k1, k2);
+            print(os, n->right, k+1);
+            for (size_t i = 0; i < k; ++i) os << "    ";
+            os << *n <<"\n";
+            print(os, n->left, k+1);
             return os;
         }
 
@@ -378,7 +372,7 @@ namespace RBTREE {
                 }
                 n = (n->Key() > key) ? n->left : n->right;
             }
-            exit(-1);
+            throw EXCEPT::Except("invalid index");
         }
 
         void insert(const K& key, const V& value) {
@@ -391,11 +385,7 @@ namespace RBTREE {
         }
         
         friend std::ostream& operator<< (std::ostream& os, const RBTree<K, V>& tree) {
-            return tree.print(os, tree.root);
-        }
-        
-		std::ostream& Print(std::ostream& os, const K& k1, const K& k2) {
-            return print(os, root, k1, k2);
+            return tree.print(os, tree.root, 0);
         }
         
         RBTree operator+ (const RBTree& tree) const {
