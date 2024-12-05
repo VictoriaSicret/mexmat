@@ -182,7 +182,7 @@ namespace RBTREE {
         void del_case6(node<K, V>* n);
 */
         void replace(node* n, node* child) {
-            if (child != &node::null) child->parent = n->parent;
+            child->parent = n->parent;
             if (n->parent->left == n) n->parent->left = child;
             else if (n->parent->right == n) n->parent->right = child;
         }
@@ -194,7 +194,6 @@ namespace RBTREE {
                 if (child->color == RED) child->color = BLACK;
                 else del_case1(child);
             }
-            if (n == root) root = child;
             delNode(n);
         }
 
@@ -391,6 +390,7 @@ namespace RBTREE {
 
         void remove(const K& key) {
             remove(root, key);
+            node::null.parent = &node::null;
         }
         
         friend std::ostream& operator<< (std::ostream& os, const RBTree<K, V>& tree) {
