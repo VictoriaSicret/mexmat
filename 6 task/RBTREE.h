@@ -11,7 +11,6 @@ namespace RBTREE {
     class RBTree {
         protected:
         class node {
-
             public:
 
             K key; V value;
@@ -64,6 +63,53 @@ namespace RBTREE {
             bool operator!= (const node& n) const {
                 return !(*this == n);
             }
+        };
+
+        class Iterator {
+            const RBTree *tree;
+            node* pos;
+            public:
+            Iterator(const RBTree *currTree = nullptr, node* n = nullptr): tree(currTree), pos(n) {}
+            Iterator(const Iterator& i): tree(i.tree), pos(i.pos) {}
+            ~Iterator(void) {tree = nullptr; pos = nullptr;}
+
+            Iterator& operator= (const Iterator& i) {tree = i.tree; pos = i.pos; return *this;}
+
+            Iterator& operator++ (void) {
+                if (pos->right == &node::null) { if (pos->parent != &node::right && pos->parent->left = pos) pos = pos->parent;
+                } else {
+                    pos = pos->right;
+                    while (pos->left != &node::null) pos = pos->left;
+                }
+                return *this;
+            }
+
+            Iterator operator++ (int) {
+                Iterator old(*this);
+                ++(*this);
+                return old;
+            }
+
+            Iterator& operator-- (void) {
+                if (pos->left == &node::null) { if (pos->parent != &node::null && pos->parent->right == pos) pos = pos->parent;
+                } else {
+                    pos = pos->left;
+                    while (pos->right != &node::null) pos = pos->right;
+                }
+                return *this;
+            }
+
+            Iterator operator-- (int) {
+                Iterator old(*this);
+                --(*this);
+                return old;
+            }
+
+            V& operator* (void) {return pos->Value();}
+            const V& operator* (void) const {return pos->Value();}
+
+            bool operator== (const Iterator& i) const {return tree == i.tree && pos == i.pos;}
+            bool operator!= (const Iterator& i) const {return !(*this == i);}
         };
 
         node* root;
@@ -393,9 +439,7 @@ namespace RBTREE {
             node::null.parent = &node::null;
         }
         
-        friend std::ostream& operator<< (std::ostream& os, const RBTree<K, V>& tree) {
-            return tree.print(os, tree.root, 0);
-        }
+        friend std::ostream& operator<< (std::ostream& os, const RBTree<K, V>& tree) {return tree.print(os, tree.root, 0);}
         
         RBTree operator+ (const RBTree& tree) const {
             RBTree res(*this);
@@ -407,13 +451,22 @@ namespace RBTREE {
             return *this;
         }
 
-        bool operator== (const RBTree& tree) const {
-            return eq(root, tree.root);
+        bool operator== (const RBTree& tree) const {return eq(root, tree.root);}
+        bool operator!= (const RBTree& tree) const {return !(*this == tree);}
+
+        Iterator begin(void) const {
+            node* curr = root;
+            while (curr->left != &node::null) curr = curr->left;
+            return Iterator(this, curr);
         }
 
-        bool operator!= (const RBTree& tree) const {
-            return !(*this == tree);
+        Iterator end(void) const {
+            node* curr = root;
+            while (curr->right != &node::null) curr = curr->right;
+            return Iterator(this, curr);
         }
+
+        Iterator Root (void) const {return Iterator(this, root);}
     };
     template <typename K, typename V>
     typename RBTree<K, V>::node RBTree<K, V>::node::null(K(), V(), BLACK);

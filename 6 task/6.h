@@ -26,8 +26,8 @@ namespace TReeINTERFACE {
             int act(0), val(0); std::string word, value;
             while (true) {
                 try {
-                    std::cout << "\nChoose action:\n1)add value\n2)remove value\n3)print tree" << std::endl;
-                    std::cin >> act; if (act != 1 && act != 2 && act != 3) break;
+                    std::cout << "\nChoose action:\n1)add value\n2)remove value\n3)print tree\n4)work with pointer" << std::endl;
+                    std::cin >> act; if (act != 1 && act != 2 && act != 3 && act != 4) break;
                     if (act == 1) {
                         std::cout << "\nEnter key:" << std::endl;
                         std::cin >> word;
@@ -38,8 +38,10 @@ namespace TReeINTERFACE {
                         std::cout << "\nEnter key:" << std::endl;
                         std::cin >> word;
                         (flag) ? (fi.remove(word)) : (fs.remove(word));
-                    } else {
+                    } else if (act == 3){
                         (flag) ? (std::cout<< fi << std::endl) : (std::cout << fs << std::endl);
+                    } else {
+                        std::cout << << std::endl;
                     }
                 }
                 catch (EXCEPT::Except& excp) {
