@@ -66,9 +66,9 @@ namespace RBTREE {
         };
 
         class Iterator {
+            public:
             const RBTree *tree;
             node* pos;
-            public:
             Iterator(const RBTree *currTree = nullptr, node* n = nullptr): tree(currTree), pos(n) {}
             Iterator(const Iterator& i): tree(i.tree), pos(i.pos) {}
             ~Iterator(void) {tree = nullptr; pos = nullptr;}
@@ -76,7 +76,19 @@ namespace RBTREE {
             Iterator& operator= (const Iterator& i) {tree = i.tree; pos = i.pos; return *this;}
 
             Iterator& operator++ (void) {
-                if (pos->right == &node::null) { if (pos->parent != &node::right && pos->parent->left = pos) pos = pos->parent;
+                node* tmp = pos;
+                if (pos->right == &node::null) {
+                    while (true) {
+                        if (pos->parent == &node::null) {
+                            pos = tmp;
+                            return *this;
+                        }
+                        if (pos->parent->right == pos) pos = pos->parent;
+                        else {
+                            pos = pos->parent;
+                            break;
+                        }
+                    }
                 } else {
                     pos = pos->right;
                     while (pos->left != &node::null) pos = pos->left;
@@ -91,7 +103,19 @@ namespace RBTREE {
             }
 
             Iterator& operator-- (void) {
-                if (pos->left == &node::null) { if (pos->parent != &node::null && pos->parent->right == pos) pos = pos->parent;
+                node* tmp = pos;
+                if (pos->left == &node::null) {
+                    while (true) {
+                        if (pos->parent == &node::null) {
+                            pos = tmp;
+                            return *this;
+                        }
+                        if (pos->parent->left == pos) pos = pos->parent;
+                        else {
+                            pos = pos->parent;
+                            break;
+                        }
+                    }
                 } else {
                     pos = pos->left;
                     while (pos->right != &node::null) pos = pos->right;
@@ -359,6 +383,16 @@ namespace RBTREE {
             return os;
         }
 
+        std::ostream& print(std::ostream& os, const node* n, const size_t& k, const Iterator& it) const {
+            if (n == &node::null) return os;
+            print(os, n->right, k+1, it);
+            for (size_t i = 0; i < k; ++i) os << "    ";
+            if (it.pos == n) os << "*";
+            os << *n <<"\n";
+            print(os, n->left, k+1, it);
+            return os;
+        }
+
 		bool eq(const node* n1, const node* n2) const {
             if (n1 == &node::null && n2 == &node::null) return true;
             if ((n1 == &node::null && n2 != &node::null) || (n1 != &node::null && n2 == &node::null)) return false;
@@ -440,7 +474,7 @@ namespace RBTREE {
         }
         
         friend std::ostream& operator<< (std::ostream& os, const RBTree<K, V>& tree) {return tree.print(os, tree.root, 0);}
-        
+        friend std::ostream& operator << (std::ostream& os, const Iterator& it) {return it.tree->print(os, it.tree->root, 0, it);}
         RBTree operator+ (const RBTree& tree) const {
             RBTree res(*this);
             res.add(tree.root); return res;
