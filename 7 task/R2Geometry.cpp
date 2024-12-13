@@ -24,4 +24,5 @@ namespace R2Geometry {
         res = p1+lymbda*v1;
         return true;
     }
+
 }

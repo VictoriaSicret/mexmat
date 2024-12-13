@@ -136,6 +136,14 @@ namespace R2Geometry {
             return *this;
         }
 
+        Vector& rotate(double phi) {
+            if (mod() < EPS) return *this;
+            double newx = x*cos(phi) - y*sin(phi),
+                   newy = x*sin(phi) + y*cos(phi);
+            x = newx; y = newy;
+            return *this;
+        }
+        bool paral (const Vector& v) const {return fabs((*this)*(v.n())) < EPS;}
         bool operator== (const Vector& v) const {return fabs(x-v.x) < EPS && fabs(y-v.y) < EPS;}
         bool operator!= (const Vector& v) const {return !(*this == v);}
     };

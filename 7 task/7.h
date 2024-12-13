@@ -23,6 +23,8 @@ class polygon {
     void add(const Point& x) {vertex.pushBack(x);}
 
     int isInPolygon(const Point& p) const;
+    bool paral_polygon (const Vector& p) const;
+
     friend std::ostream& operator<< (std::ostream& os, const polygon& p) {
         return os << p.vertex;
     }

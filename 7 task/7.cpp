@@ -11,6 +11,7 @@ int polygon::case_(const Point& p, const Vector& v, const bool flag) const{
             else { 
                 for (auto it = onLine.begin(); it != onLine.end(); ++it) {
                     if ((flag) ? ((*it).X() < tmp.X()) : ((*it).Y() < tmp.Y())) continue;
+                    if ((*it) == tmp) {check = false; break;}
                     onLine.pushIn(it, tmp);
                     check = false;
                     break;
@@ -25,17 +26,28 @@ int polygon::case_(const Point& p, const Vector& v, const bool flag) const{
     int res = -1;
     for (auto iter = onLine.begin(); iter != onLine.end(); ++iter) {
         if ((flag) ? ((*iter).X() < p.X()) : ((*iter).Y() < p.Y())) res *= -1;
-        else if (*iter == p) return 2;
+        else if ((*iter) == p) return 2;
         else return res;
     }
-
     return res;
 }
 
+
+bool polygon::paral_polygon (const Vector& p) const {
+    for (auto iter = vertex.begin(); iter != vertex.end(); ++iter) {
+        if (p.paral(*(iter+1)-(*iter))) return true;
+    }
+    return false;
+}
 int polygon::isInPolygon (const Point& p) const {
-    int res = case_(p, Vector(1, 0), true);
+    double phi = M_PI/2; phi /= vertex.length()+1;
+    Vector v(1, 0);
+    while (paral_polygon(v)) v.rotate(phi);
+    int res = case_(p, v, true);
     if (res != 0) return res;
-    res = case_(p, Vector(0, 1), false);
+    phi *= -1; Vector u = Vector(-1, 0);
+    while (paral_polygon(u) || u.paral(v)) u.rotate(phi);
+    res = case_(p, Vector(0, 1), !(u.paral(Vector(0, 1))));
     if (res != 0) return res;
     for (auto iter = vertex.begin(); iter != vertex.end(); ++iter) if (*iter == p) return 2;
     return -1;
