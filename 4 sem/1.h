@@ -4,49 +4,38 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 #include <string>
+#include <vector>
 
 class CintN {
-	private:
-		char val[N];
-		CintN (char arr[N]);
-		CintN (std::string val);
-	public:
-		CintN (int value);
-		
-		virtual ~CintN ();
-		
-		CintN(const CintN &v);
-		
-		bool operator > (const CintN &v) const;
+    private:
+        CintN (char arr[N+1]);
+    public:
+        char val[N+1];
 
-		bool operator == (const CintN &v) const;
+        CintN (std::string val);
+        CintN (int value);
+        virtual ~CintN () {};
 
-		CintN operator+ (const CintN &v) const;
-		
-		CintN operator- (const CintN &v) const;
-		
-		CintN& operator= (const CintN &v);
-		
-		virtual std::string print() const = 0;
+        CintN(const CintN &v);
+        CintN& operator= (const CintN &v);
+
+        virtual std::string print() const = 0;
         virtual void Show(void) = 0;
-		
-		CintN& generate(int n);
-		
-		friend CintN make(bool flag_d, bool &flag);
 
-		friend std::ostream& operator<< (std::ostream& os, CintN ob);
+        friend std::ostream& operator<< (std::ostream& os, const CintN& ob);
 };
 
 class CintN1: public CintN {
     public:
     std::string file;
-    CintN1(std::string str, int value): CintN(value), file(str) {}
+    CintN1(std::string f, std::string value): CintN(value), file(f) {}
     ~CintN1() {std::cout << "CintN1 destructor\n" << std::endl;}
 
     std::string print() const {
-        char number[N+1]; int k = 1; bool flag = true;
-        number[0] = "!";
+        char number[N+2]; int k = 1; bool flag = true;
+        number[0] = '!';
         for (int i = N; i >= 0; i--) {
             if (flag) {
                 if (val[i] != 0) flag = false;
@@ -61,24 +50,24 @@ class CintN1: public CintN {
         return res;
     }
 
-    friend std::ostream& operator<< (std::ostream& os, CintN1 ob);
+    friend std::ostream& operator<< (std::ostream& os, const CintN1& ob);
 
     void Show(void) {
-        ifstream f(file, ios::app);
+        std::ofstream f(file.c_str(), std::ios::app);
         f << print();
-        f.close;
+        f.close();
     }
 };
 
 class CintN2: public CintN {
     public:
     std::string file;
-    CintN2(std::string, int value): CintN(value), file(str) {}
+    CintN2(std::string f, std::string value): CintN(value), file(f) {}
     ~CintN2() {std::cout << "CintN2 destructor\n" << std::endl;}
 
     std::string print() const {
         char number[N+1]; int k = 1; bool flag = true;
-        number[0] = "?";
+        number[0] = '?';
         for (int i = N; i >= 0; i--) {
             if (flag) {
                 if (val[i] != 0) flag = false;
@@ -93,7 +82,14 @@ class CintN2: public CintN {
         return res;
     }
 
-    friend std::ostream& operator<< (std::ostream& os, CintN2 ob);
+    friend std::ostream& operator<< (std::ostream& os, const CintN2& ob);
+
+    void Show(void) {
+        std::ofstream f(file.c_str(), std::ios::app);
+        f << print();
+        f.close();
+    }
 };
 
+int Input(std::ifstream&, std::vector <CintN*>&);
 #endif

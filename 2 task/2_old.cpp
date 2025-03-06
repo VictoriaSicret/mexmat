@@ -8,7 +8,7 @@ namespace cint {
                 for (int i = 1; i < n-1; ++i) {
                         res[i] = tmp[n-2-i];
                 }
-		res[0] = tmp[n-2];
+                res[0] = tmp[n-2];
                 res[n-1] = 0;
                 delete[] tmp;
                 return res;
