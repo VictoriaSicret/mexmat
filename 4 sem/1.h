@@ -34,17 +34,9 @@ class CintN1: public CintN {
     ~CintN1() {std::cout << "CintN1 destructor\n" << std::endl;}
 
     std::string print() const {
-        char number[N+2]; int k = 1; bool flag = true;
+        char number[N+2];
         number[0] = '!';
-        for (int i = N; i >= 0; i--) {
-            if (flag) {
-                if (val[i] != 0) flag = false;
-                else continue;
-            }
-            number[k] = val[i] + 48;
-            k++;
-        }
-        for (int i = k; i < N+1; i++) number[i] = 0;
+        for (int i = 1; i < N+2; ++i) number[i] = val[i-1];
         std::string res(number);
         if(res.empty()) res = "!0";
         return res;
@@ -54,7 +46,7 @@ class CintN1: public CintN {
 
     void Show(void) {
         std::ofstream f(file.c_str(), std::ios::app);
-        f << print();
+        f << print() << "\n";
         f.close();
     }
 };
@@ -66,19 +58,11 @@ class CintN2: public CintN {
     ~CintN2() {std::cout << "CintN2 destructor\n" << std::endl;}
 
     std::string print() const {
-        char number[N+1]; int k = 1; bool flag = true;
+        char number[N+2];
         number[0] = '?';
-        for (int i = N; i >= 0; i--) {
-            if (flag) {
-                if (val[i] != 0) flag = false;
-                else continue;
-            }
-            number[k] = val[i] + 48;
-            k++;
-        }
-        for (int i = k; i < N+1; i++) number[i] = 0;
+        for (int i = 1; i < N+2; ++i) number[i] = val[i-1];
         std::string res(number);
-        if(res.empty()) res = "?0";
+        if(res.empty()) res = "!0";
         return res;
     }
 
@@ -86,7 +70,7 @@ class CintN2: public CintN {
 
     void Show(void) {
         std::ofstream f(file.c_str(), std::ios::app);
-        f << print();
+        f << print() << "\n";
         f.close();
     }
 };
