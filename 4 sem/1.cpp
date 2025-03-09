@@ -65,10 +65,12 @@ int Input(std::ifstream& in, std::vector <CintN*> &v) {
     int type; std::string file, value;
     while (in >> type >> file >> value) {
         if (type == 1) {
+            std::ofstream f; f.close();
             CintN1 *w = new CintN1(file, value);
             v.push_back(w);
         }
         if (type == 2) {
+            std::ofstream f(file); f.close();
             CintN2 *w = new CintN2(file, value);
             v.push_back(w);
         }
