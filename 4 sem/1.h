@@ -18,8 +18,25 @@ class CintN {
         CintN(const CintN &v): val(v.val) {}
         CintN& operator= (const CintN &v);
 
-        virtual std::string print() const = 0;
-        virtual void Show(void) = 0;
+	CintN operator+ (const CintN& ob) const;
+	CintN operator- (const CintN& ob) const;
+	CintN operator+ () const;
+	CintN operator- () const;
+
+	bool operator== (const CintN& ob) const;
+        bool operator!= (const CintN& ob) const;
+	bool operator< (const CintN& ob) const;
+        bool operator<= (const CintN& ob) const;
+        bool operator> (const CintN& ob) const;
+        bool operator>= (const CintN& ob) const;
+
+        virtual std::string print() const {
+		return val;
+	}
+
+        virtual void Show(void) {
+		std::cout << print() << std::endl;
+	}
 
         friend std::ostream& operator<< (std::ostream& os, const CintN& ob);
 };
