@@ -1,6 +1,5 @@
 #ifndef CINTN
 #define CINTN
-#define N 10
 
 #include <cstdlib>
 #include <iostream>
@@ -9,16 +8,14 @@
 #include <vector>
 
 class CintN {
-    private:
-        CintN (char arr[N+1]);
     public:
-        char val[N+1];
+	std::string val;
 
         CintN (std::string val);
-        CintN (int value);
-        virtual ~CintN () {};
+        CintN (int value = 0): val(std::to_string(value)) {}
+        virtual ~CintN () {}
 
-        CintN(const CintN &v);
+        CintN(const CintN &v): val(v.val) {}
         CintN& operator= (const CintN &v);
 
         virtual std::string print() const = 0;
@@ -34,11 +31,7 @@ class CintN1: public CintN {
     ~CintN1() {std::cout << "CintN1 destructor\n" << std::endl;}
 
     std::string print() const {
-        char number[N+2];
-        number[0] = '!';
-        for (int i = 1; i < N+2; ++i) number[i] = val[i-1];
-        std::string res(number);
-        if(res.empty()) res = "!0";
+        std::string res = "!"; res += val;
         return res;
     }
 
@@ -58,11 +51,7 @@ class CintN2: public CintN {
     ~CintN2() {std::cout << "CintN2 destructor\n" << std::endl;}
 
     std::string print() const {
-        char number[N+2];
-        number[0] = '?';
-        for (int i = 1; i < N+2; ++i) number[i] = val[i-1];
-        std::string res(number);
-        if(res.empty()) res = "!0";
+        std::string res = "?"; res += val; 
         return res;
     }
 
