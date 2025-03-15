@@ -24,7 +24,7 @@ CintN CintN::operator+ (const CintN& ob) const{
     if (!s1 && !s2) return -((-(*this)) + (-ob));
     if (s1 && !s2) return (*this - (-ob));
     if (!s1 && s2) return (ob - (-(*this)));
-    int i = val.length()-1, j = val.length(), p = 0; std::string res = "";
+    int i = val.length()-1, j = ob.val.length()-1, p = 0; std::string res = "";
     while (i > -1 && j > -1) {
 	res.insert(0, std::to_string(((val[i]-48) + (ob.val[j] - 48) + p)%10));
 	p = ((val[i]-48) + (ob.val[j] - 48) + p)/10;
@@ -40,7 +40,6 @@ CintN CintN::operator+ (const CintN& ob) const{
         p = (val[j] - 48 + p)/10;
         --j;
     }
-    
     return CintN(res);
 }
 
@@ -68,7 +67,7 @@ CintN CintN::operator- (const CintN& ob) const{
 
     if (*this < ob) return -(ob - *this);
 
-    int i = val.length()-1, j = val.length(), p = 0, diff = 0; std::string res = "";
+    int i = val.length()-1, j = ob.val.length()-1, p = 0, diff = 0; std::string res = "";
     while (i > -1 && j > -1) {
 	diff = (val[i]-48) - (ob.val[j] - 48) + p; 
 	if (diff < 0) {
