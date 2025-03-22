@@ -1,0 +1,7 @@
+
+time: 0.030215
+
+
+time with parallel: 0.112039
+
+Correct
