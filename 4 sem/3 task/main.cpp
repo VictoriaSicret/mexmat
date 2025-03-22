@@ -1,7 +1,5 @@
 #include "3.h"
 int main(){
-	omp_set_dynamic(0);
-	omp_set_num_threads(4);	
 	std::srand(std::time({}));
 	std::vector<CintN*> v1, v2, result;
 	std::vector<CFabric*> fabric;
