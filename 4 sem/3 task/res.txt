@@ -1,7 +1,5 @@
-
-time: 5.09048
-
-
-time with parallel: 6.10217
-
+time for addition: 0.028681
+time for addition with parallel: 0.028509
+time for multiplication: 35.5578
+time for multiplication with parallel: 35.3134
 Correct

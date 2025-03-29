@@ -31,10 +31,12 @@ class CintN {
     CintN(const CintN &v): val(v.val) {}
     CintN& operator= (const CintN &v);
 
-	virtual CintN operator+ (const CintN& ob) const;
+	CintN operator+ (const CintN& ob) const;
 	CintN operator- (const CintN& ob) const;
+	CintN& operator+= (const CintN& ob);
 	CintN operator+ () const;
 	CintN operator- () const;
+	virtual CintN operator* (const CintN& ob) const;
 
 	bool operator== (const CintN& ob) const;
     bool operator!= (const CintN& ob) const;
@@ -53,6 +55,7 @@ class CintN1: public CintN {
     public:
 	CintN1(const CintN &ob): CintN(ob) {}
     CintN1(std::string value): CintN(value) {}
+	CintN1(int value = 0): CintN(value) {}
     ~CintN1() {}
 
     friend std::ostream& operator<< (std::ostream& os, const CintN1& ob);
@@ -62,13 +65,12 @@ class CintN2: public CintN {
     public:
     CintN2(std::string value): CintN(value) {}
 	CintN2(const CintN &ob): CintN(ob) {}
+	CintN2(int value = 0): CintN(value) {}
+	CintN operator* (const CintN& ob) const override;
+
     ~CintN2() {}
 
-	CintN operator+ (const CintN& ob) const override;
-
     friend std::ostream& operator<< (std::ostream& os, const CintN2& ob);
-	private:
-	static std::string sum(const std::string &str1, const std::string &str2);
 };
 
 class CFabric
@@ -90,7 +92,7 @@ class CFabric2 : public CFabric
  	CintN* Create(std::string value) override{return new CintN2(value);}     
 };
 
-int Input(std::ifstream&, std::ifstream&, std::vector <CintN*>&, std::vector<CintN*>&, std::vector <CFabric*>&);
+int Input(int, std::ifstream&, std::ifstream&, std::vector <CintN*>&, std::vector<CintN*>&, std::vector <CFabric*>&);
 
 std::string genString(size_t n);
 void gen(std::ofstream& os, size_t n, size_t k);
