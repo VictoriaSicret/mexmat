@@ -36,15 +36,11 @@ def GaussianBlur(Gfilter, r, pixels, size):
             for p in tmp: sum += p
             for p in tmp: p /= sum
             tmp = convolution(tmp, values[:x])
-            res[x][0] = int(math.floor(tmp[0]))
-            res[x][1] = int(math.floor(tmp[1]))
-            res[x][2] = int(math.floor(tmp[2]))
+            res[x] = [int(math.floor(tmp[0])), int(math.floor(tmp[1])), int(math.floor(tmp[2]))].copy()
         
         for x in range(r, len(values)-r):
             tmp = convolution(Gfilter, values[x-r:r+x+1])
-            res[x][0] = int(math.floor(tmp[0]))
-            res[x][1] = int(math.floor(tmp[1]))
-            res[x][2] = int(math.floor(tmp[2]))
+            res[x] = [int(math.floor(tmp[0])), int(math.floor(tmp[1])), int(math.floor(tmp[2]))].copy()
         
         for x in range(len(values)-r, len(values)):
             tmp = Gfilter[x:]
@@ -52,10 +48,8 @@ def GaussianBlur(Gfilter, r, pixels, size):
             for p in tmp: sum += p
             for p in tmp: p /= sum
             tmp = convolution(tmp, values[x:])
-            res[x][0] = int(math.floor(tmp[0]))
-            res[x][1] = int(math.floor(tmp[1]))
-            res[x][2] = int(math.floor(tmp[2]))
-        for x in range(len(values)): print(res[x])
+            res[x] = [int(math.floor(tmp[0])), int(math.floor(tmp[1])), int(math.floor(tmp[2]))].copy()
+
         return res
 
     for x in range(n):
@@ -72,7 +66,7 @@ def GaussianBlur(Gfilter, r, pixels, size):
 
 
 sigma = 1.5
-r = math.ceil(3 * sigma)
+r = int(math.ceil(3 * sigma))
 
 img = Image.open("image.jpg")
 pixels = img.load()
