@@ -1,6 +1,11 @@
 from PIL import Image
 import math
 
+def comp(pixels, i, j, x, y, eps):
+    if math.fabs(pixels[i-1, j-1][0] - pixels[x, y][0]) < eps and math.fabs(pixels[i-1, j-1][1] - pixels[x, y][1]) < eps and math.fabs(pixels[i-1, j-1][2] - pixels[x, y][2]) < eps:
+        return True
+    return False
+
 
 def getGaussian(r, sigma):
     Gfilter = [0.]*(2*r+1)
@@ -14,7 +19,7 @@ def getGaussian(r, sigma):
 
     return Gfilter
 
-def GaussianBlur(Gfilter, r, pixels, size):
+def GaussianBlur(Gfilter, r, pixels, size, a, b, eps):
     global img_new
     n = size[0]
     m = size[1]
@@ -52,29 +57,39 @@ def GaussianBlur(Gfilter, r, pixels, size):
 
         return res
 
-    for x in range(n):
-        tmp = [pixels[x, j] for j in range(m)]
-        buff = GaussBlur1Dim(Gfilter, r, tmp)
-        for y in range(m): 
-            img_new.putpixel((x, y), tuple(buff[y]))
-    
+    lst = []
     for y in range(m):
-        tmp = [pixels[i, y] for i in range(n)]
-        buff = GaussBlur1Dim(Gfilter, r, tmp)
-        for x in range(n): img_new.putpixel((x, y), tuple(buff[x]))
+        for x in range(n):
+            if comp(pixels, x, y, a, b, eps):
+                lst.append([x, y])
 
+    for y in range(m):
+        for x in range(n):
+            if [x, y] in lst:
+                
+                tmp = [pixels[x, j] for j in range(m)]
+                buff = GaussBlur1Dim(Gfilter, r, tmp)
+                for y in range(m): 
+                    img_new.putpixel((x, y), tuple(buff[y]))
+                
+                tmp = [pixels[i, y] for i in range(n)]
+                buff = GaussBlur1Dim(Gfilter, r, tmp)
+                for y in range(m): 
+                    img_new.putpixel((x, y), tuple(buff[y]))
 
 
 sigma = 1.5
 r = int(math.ceil(3 * sigma))
 
-img = Image.open("image.jpg")
+img = Image.open("images/noise.jpg")
 pixels = img.load()
 
+x, y = map(int,input("Enter coordinates of noise: ").split())
+eps = int(input("Enter accuracy: "))
 img_new = img.copy()
 
 Gfilter = getGaussian(r, sigma)
-GaussianBlur(Gfilter, r, pixels, img.size)
+GaussianBlur(Gfilter, r, pixels, img.size, x, y, eps)
 
-img_new.save("image_new.jpg")
+img_new.save("images/clear_gauss.jpg")
 

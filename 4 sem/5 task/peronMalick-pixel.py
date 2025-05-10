@@ -1,7 +1,13 @@
 from PIL import Image
 import math
 
-def PeronMalickBlur(k, t, pixels, size):
+def comp(pixels, i, j, x, y, eps):
+    if math.fabs(pixels[i-1, j-1][0] - pixels[x, y][0]) < eps and math.fabs(pixels[i-1, j-1][1] - pixels[x, y][1]) < eps and math.fabs(pixels[i-1, j-1][2] - pixels[x, y][2]) < eps:
+        return True
+    return False
+
+
+def PeronMalickBlur(k, t, pixels, size, a, b, eps):
 
     global img_new
     n = size[0]
@@ -27,7 +33,7 @@ def PeronMalickBlur(k, t, pixels, size):
  
 
     def g(x): 
-        return 1./(1.+(math.sqrt(x[0]**2 + x[1]**2 + x[2]**2)/k)**2)
+        return 1./(1.+(math.sqrt(x[0]**2 + x[1]**2 + x[2]**2)/k)**4)
 
     level = 0.
     delta_t = 0.25
@@ -39,6 +45,10 @@ def PeronMalickBlur(k, t, pixels, size):
     while level < t:
         for i in range(1, n+1):
             for j in range(1, m+1):
+                
+                if not comp(pixels, i, j, a, b, eps):
+                    continue
+
                 north[0] = new_pixels[i-1][j][0]-new_pixels[i][j][0]                
                 north[1] = new_pixels[i-1][j][1]-new_pixels[i][j][1] 
                 north[2] = new_pixels[i-1][j][2]-new_pixels[i][j][2]
@@ -75,11 +85,13 @@ def PeronMalickBlur(k, t, pixels, size):
 
 
 
-img = Image.open("image.jpg")
+img = Image.open("images/noise.jpg")
 img_new = img.copy()
 pixels = img.load()
+x, y = map(int,input("Enter coordinates of noise: ").split())
 
-PeronMalickBlur(10, 10, pixels, img.size)
+eps = int(input("Enter accuracy: "))
+PeronMalickBlur(15, 15, pixels, img.size, x, y, eps)
 
-img_new.save("image_our_algorithm.jpg")
+img_new.save("images/clear.jpg")
 
