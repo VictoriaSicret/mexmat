@@ -75,11 +75,11 @@ def PeronMalickBlur(k, t, pixels, size):
 
 
 
-img = Image.open("images/noise.jpg")
+img = Image.open("images/image.jpg")
 img_new = img.copy()
 pixels = img.load()
 
-PeronMalickBlur(15, 15, pixels, img.size)
+PeronMalickBlur(15, 10, pixels, img.size)
 
-img_new.save("images/clear_original.jpg")
+img_new.save("images/image8.jpg")
 
