@@ -7,7 +7,7 @@ def comp(pixels, i, j, x, y, eps):
     return False
 
 
-def PeronMalickBlur(k, t, pixels, size, a, b, eps):
+def PeronMalickBlur(k, t, pixels, size, a, b, eps, px, py, pxx, pyy):
 
     global img_new
     n = size[0]
@@ -47,6 +47,11 @@ def PeronMalickBlur(k, t, pixels, size, a, b, eps):
             for j in range(1, m+1):
                 
                 if not comp(pixels, i, j, a, b, eps):
+                    continue
+
+                if not (px <= i and i <= pxx):
+                    continue
+                if not (py <= j and j <= pyy):
                     continue
 
                 north[0] = new_pixels[i-1][j][0]-new_pixels[i][j][0]                
@@ -89,9 +94,12 @@ img = Image.open("images/noise.jpg")
 img_new = img.copy()
 pixels = img.load()
 x, y = map(int,input("Enter coordinates of noise: ").split())
+px, py = map(int,input("Enter coordinates of left up point: ").split())
+pxx, pyy = map(int,input("Enter coordinates of right down point: ").split())
+
 
 eps = int(input("Enter accuracy: "))
-PeronMalickBlur(15, 15, pixels, img.size, x, y, eps)
+PeronMalickBlur(15, 15, pixels, img.size, x, y, eps, px, py, pxx, pyy)
 
 img_new.save("images/clear.jpg")
 

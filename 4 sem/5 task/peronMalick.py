@@ -1,5 +1,6 @@
 from PIL import Image
 import math
+import time
 
 def PeronMalickBlur(k, t, pixels, size):
 
@@ -79,7 +80,10 @@ img = Image.open("images/image.jpg")
 img_new = img.copy()
 pixels = img.load()
 
+start = time.time()
 PeronMalickBlur(15, 10, pixels, img.size)
+end = time.time()-start
+print(end)
 
 img_new.save("images/image8.jpg")
 
