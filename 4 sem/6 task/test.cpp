@@ -1,9 +1,8 @@
-import BMPImage;
-import <ctime>;
-import <iostream>;
+#include <ctime>
+#include "lib_BMP.hpp"
 
 int main(void){
-	BMPImage::Image img(0, 0, 0);
+	Image img(0, 0, 0);
 	img.Read("test.bmp");
 	
 	int timer1 = -clock();
