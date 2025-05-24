@@ -10,12 +10,13 @@
 
 	Image::~Image() {}
 
-	Pixel Image::GetPixel(const size_t& x, const size_t& y) const {return pixels[y*width+x];}
+	const Pixel& Image::GetPixel(const size_t& x, const size_t& y) const {return pixels[y*width+x];}
 
 	void Image::SetPixel(const Pixel& pixel, const size_t& x, const size_t& y) {
 		pixels[y*width+x].r = pixel.r;
 		pixels[y*width+x].g = pixel.g;
 		pixels[y*width+x].b = pixel.b;
+		pixels[y*width+x].br = pixel.br;
 	}
 
 	void Image::Read(const char* filename) {
@@ -228,26 +229,30 @@
 
 		Image out(n, m, this->pixel_size);
 
-		std::vector<std::vector<Pixel>> new_pixels{};
-		std::vector<std::vector<Pixel>> tmp{};
+		for (size_t i = 0; i < n; ++i) {
+			for (size_t j = 0; j < m; ++j) {
+				out.SetPixel(this->GetPixel(i, j), i, j);
+			}
+		}
+
+		std::vector<Pixel> new_pixels((n+2)*(m+2));
+		std::vector<Pixel> tmp((n+2)*(m+2));
 	
 		for (size_t i = 0; i < n+2; ++i) {
-		    new_pixels.push_back(std::vector<Pixel>{});
 		    for (size_t j = 0; j < m+2; ++j) {
 		        if (!(i == 0 || i == n+1 || j == 0 || j == m+1))
-		            new_pixels[i].push_back(GetPixel(i-1, j-1));
+		            new_pixels[i+j*(n+2)] = GetPixel(i-1, j-1);
 		        else
-		            new_pixels[i].push_back(Pixel());
+		            new_pixels[i+j*(n+2)] = Pixel();
 			}
 		}
 
 		for (size_t i = 0; i < n+2; ++i) {
-			tmp.push_back(std::vector<Pixel>{});
 			for (size_t j = 0; j < m+2; ++j) {
 			    if (!(i == 0 || i == n+1 || j == 0 || j == m+1))
-			        tmp[i].push_back(GetPixel(i-1, j-1));
+			        tmp[i+j*(n+2)] = GetPixel(i-1, j-1);
 			    else
-			        tmp[i].push_back(Pixel{});
+			        tmp[i+j*(n+2)] = Pixel();
 			}
 		}
 
@@ -260,31 +265,18 @@
 		while (level < t) {
 		    for (size_t i = 1; i < n+1; ++i) {
 		        for (size_t j = 1; j < m+1; ++j) {
-		            north.r = new_pixels[i-1][j].r-new_pixels[i][j].r;                
-		            north.g = new_pixels[i-1][j].g-new_pixels[i][j].g;
-		            north.b = new_pixels[i-1][j].b-new_pixels[i][j].b;
-
-		            south.r = new_pixels[i+1][j].r-new_pixels[i][j].r;
-		            south.g = new_pixels[i+1][j].g-new_pixels[i][j].g;
-		            south.b = new_pixels[i+1][j].b-new_pixels[i][j].b;
-
-			        east.r = new_pixels[i][j+1].r-new_pixels[i][j].r;
-					east.g = new_pixels[i][j+1].g-new_pixels[i][j].g;
-					east.b = new_pixels[i][j+1].b-new_pixels[i][j].b;
+		            north = new_pixels[i-1+j*(n+2)]-new_pixels[i+j*(n+2)];
+					south = new_pixels[i+1+j*(n+2)]-new_pixels[i+j*(n+2)];
+			        east = new_pixels[i+(j+1)*(n+2)]-new_pixels[i+j*(n+2)];
+					west = new_pixels[i+(j-1)*(n+2)]-new_pixels[i+j*(n+2)];
                 
-					west.r = new_pixels[i][j-1].r-new_pixels[i][j].r;
-					west.g = new_pixels[i][j-1].g-new_pixels[i][j].g;
-					west.b = new_pixels[i][j-1].b-new_pixels[i][j].b;
-                
-					tmp[i][j].r = new_pixels[i][j].r + delta_t*(g(north)*north.r+g(south)*south.r+g(east)*east.r+g(west)*west.r);
-					tmp[i][j].g = new_pixels[i][j].g + delta_t*(g(north)*north.g+g(south)*south.g+g(east)*east.g+g(west)*west.g);
-					tmp[i][j].b = new_pixels[i][j].b + delta_t*(g(north)*north.b+g(south)*south.b+g(east)*east.b+g(west)*west.b);
+					tmp[i+j*(n+2)] = new_pixels[i+j*(n+2)] + (north*g(north)+south*g(south)+east*g(east)+west*g(west))*delta_t;
 				}
 			}
 
 			for (size_t i = 1; i < n+1; ++i) {
 				for (size_t j = 1; j < m+1; ++j) {
-				    new_pixels[i][j] = tmp[i][j];
+				    new_pixels[i+j*(n+2)] = tmp[i+j*(n+2)];
 				}
 			}
 
@@ -293,7 +285,8 @@
 
 		for (size_t i = 1; i < n+1; ++i) {
 			for (size_t j = 1; j < m+1; ++j) {
-			    out.SetPixel(new_pixels[i][j], i-1, j-1);
+				new_pixels[i+j*(n+2)].br = out.GetPixel(i-1, j-1).br;
+			    out.SetPixel(new_pixels[i+j*(n+2)], i-1, j-1);
 			}
 		}
 
@@ -379,3 +372,42 @@
 
 		return out;
 	}
+
+void Image::Brightness(Image& im, const char* name)
+{
+    Pixel pix;
+    double br_1, br_2, bri;
+    Image out(im.width, im.height, im.pixel_size);
+
+    for (size_t y = 0; y < im.height; y ++)
+    {
+        for (size_t x = 0; x < im.width; x ++)
+        {
+            if (y < height && x < width)
+            {
+                pix = this -> GetPixel(x, y);
+                br_1 = (pix.r + pix.g + pix.b) / 3.0f;
+
+                pix = im.GetPixel(x, y);
+                br_2 = (pix.r + pix.g + pix.b) / 3.0f;
+
+                if (br_1 > eps)
+                {
+                    bri = br_2 / br_1;
+
+                    pix.r = pix.r * bri;
+                    pix.g = pix.g * bri;
+                    pix.b = pix.b * bri;
+
+                    out.SetPixel(pix, x, y);
+                }
+            }
+            else
+            {
+                out.SetPixel(im.GetPixel(x, y), x, y);
+            }
+        }
+    }
+
+    out.Export(name);
+}

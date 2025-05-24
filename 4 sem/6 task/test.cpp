@@ -2,9 +2,14 @@
 #include "lib_BMP.hpp"
 
 int main(void){
-	Image img(0, 0, 0);
+	Image img(0, 0, 0), img1(0, 0, 0);
 	img.Read("test.bmp");
-	
+/*
+	img1.Read("old1.bmp");
+	img.Brightness(img1, "bright.bmp");
+*/
+
+/*	
 	int timer1 = -clock();
 	auto img_new = img.Filter(15, 15);
 	timer1 += clock();
@@ -18,5 +23,5 @@ int main(void){
 	
 	img_new.Export("test_clear.bmp");
 	img_newParallel.Export("test_clear_parallel.bmp");
-	return 0;
+*/	return 0;
 }
